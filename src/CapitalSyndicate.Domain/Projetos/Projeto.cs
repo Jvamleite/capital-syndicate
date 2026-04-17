@@ -10,15 +10,15 @@ namespace CapitalSyndicate.Domain.Projetos
         public IReadOnlyList<CartaProfissional> Profissionais { get; }
         public CartaProfissional Lider { get; }
 
-        private Projeto(IEnumerable<CartaProfissional> profissionais, CartaProfissional lider, Setor setorFinal)
+        private Projeto(IEnumerable<CartaProfissional> profissionais, CartaProfissional lider)
         {
             Profissionais = [.. profissionais];
             Lider = lider;
             Escala = CalcularEscala(profissionais, lider);
-            SetorFinal = setorFinal;
+            SetorFinal = lider.Setor;
         }
 
-        public static Projeto Criar(List<CartaProfissional> profissionais, CartaProfissional lider, Setor setorFinal)
+        public static Projeto Criar(List<CartaProfissional> profissionais, CartaProfissional lider)
         {
             if (profissionais is null || profissionais.Count == 0)
             {
@@ -40,15 +40,15 @@ namespace CapitalSyndicate.Domain.Projetos
                 throw new Exception("Esse profissional não pode atuar como líder.");
             }
 
-            bool mesmoSetor = profissionais.All(p => p.Setor == profissionais.First().Setor);
-            bool mesmoCargo = profissionais.All(p => p.Cargo == profissionais.First().Cargo);
+            bool mesmoSetor = profissionais.All(p => p.Setor == profissionais[0].Setor);
+            bool mesmoCargo = profissionais.All(p => p.Cargo == profissionais[0].Cargo);
 
             if (!(mesmoSetor || mesmoCargo))
             {
                 throw new Exception("Os profissionais precisam compartilhar o mesmo setor ou cargo.");
             }
 
-            return new Projeto(profissionais, lider, setorFinal);
+            return new Projeto(profissionais, lider);
         }
 
         private static int CalcularEscala(IEnumerable<CartaProfissional> profissionais, CartaProfissional lider)
