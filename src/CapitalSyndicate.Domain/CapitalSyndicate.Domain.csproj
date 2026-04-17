@@ -6,4 +6,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Jogadores\" />
+    <Folder Include="Tokens\" />
+    <Folder Include="Partida\" />
+    <Folder Include="Projetos\" />
+  </ItemGroup>
+
 </Project>
