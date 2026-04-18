@@ -8,21 +8,27 @@ namespace CapitalSyndicate.Domain.Baralho
         private static readonly Random Rng = new();
 
         public Stack<Carta> Monte { get; }
-
         public List<Carta> MercadoDeTalentos { get; set; }
         public IEnumerable<Carta> Descarte { get; set; }
 
-        public Baralho(List<Carta> cartasNormais, List<Carta> cartasCrise)
+        public Baralho(List<Carta> cartasNormais, List<Carta> cartasCrise, int numJogadores)
         {
             Monte = new Stack<Carta>(CriarMonte(cartasNormais, cartasCrise));
-            MercadoDeTalentos = [];
+            MercadoDeTalentos = CriarMercadoDeTalentos(numJogadores);
             Descarte = [];
         }
 
-        public List<Carta> ComprarDoMonte(int n)
+        public IEnumerable<Carta> ComprarCartaDoMonte()
         {
             List<Carta> cartasCompradas = [];
-            for (int i = 0; i < n; i++)
+            if (MercadoDeTalentos.Count == 0)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    cartasCompradas.Add(Monte.Pop());
+                }
+            }
+            else
             {
                 cartasCompradas.Add(Monte.Pop());
             }
@@ -30,10 +36,13 @@ namespace CapitalSyndicate.Domain.Baralho
             return cartasCompradas;
         }
 
-        public Carta ComprarCartasDoMercadoDeTalentos(int indiceCarta)
+        public Carta ComprarCartaDoMercadoDeTalentos(Guid idCarta)
         {
-            Carta carta = MercadoDeTalentos[indiceCarta];
-            MercadoDeTalentos.RemoveAt(indiceCarta);
+            Carta? carta = MercadoDeTalentos.FirstOrDefault(c => c.Id == idCarta)
+                ?? throw new Exception("A carta selecionada é inválida.");
+
+            MercadoDeTalentos.Remove(carta);
+
             return carta;
         }
 
@@ -43,7 +52,18 @@ namespace CapitalSyndicate.Domain.Baralho
         public void DescartarCartasDoMercadoDeTalentos()
         {
             Descarte = MercadoDeTalentos;
-            MercadoDeTalentos = [];
+            MercadoDeTalentos.Clear();
+        }
+
+        private List<Carta> CriarMercadoDeTalentos(int numJogadores)
+        {
+            List<Carta> mercadoDeTalentos = [];
+            for (int i = 0; i < numJogadores + 2; i++)
+            {
+                mercadoDeTalentos.Add(Monte.Pop());
+            }
+
+            return mercadoDeTalentos;
         }
 
         private static List<Carta> CriarMonte(List<Carta> normais, List<Carta> crises)
