@@ -35,7 +35,7 @@ namespace CapitalSyndicate.Domain.Projetos
                 throw new Exception("Escolha um gerente para o projeto.");
             }
 
-            if (!gerente.PodeSerLider())
+            if (!gerente.PodeSerGerente())
             {
                 throw new Exception("Esse profissional não pode atuar como líder.");
             }

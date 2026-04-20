@@ -7,7 +7,7 @@ namespace CapitalSyndicate.Domain.Cartas
         public Setor Setor { get; set; }
         public Cargo Cargo { get; set; }
 
-        public bool PodeSerLider()
+        public bool PodeSerGerente()
         {
             return Cargo != Cargo.ConsultorExterno || Cargo != Cargo.Trainee;
         }

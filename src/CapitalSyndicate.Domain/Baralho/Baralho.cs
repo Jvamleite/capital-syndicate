@@ -1,6 +1,6 @@
 ﻿using CapitalSyndicate.Domain.Cartas;
 
-namespace CapitalSyndicate.Domain.Baralho
+namespace CapitalSyndicate.Domain.Baralhos
 {
     internal class Baralho
     {
