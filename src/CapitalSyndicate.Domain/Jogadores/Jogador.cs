@@ -11,6 +11,7 @@ namespace CapitalSyndicate.Domain.Jogadores
         public IEnumerable<Token> Tokens { get; } = [];
         public List<Projeto> ProjetosNaMesa { get; } = [];
         public List<Carta> CartasNaMao { get; } = [];
+        public List<Presenca> PresencasDeMercado { get; } = [];
 
         public void ComprarCartas(IEnumerable<Carta> cartas)
         {
