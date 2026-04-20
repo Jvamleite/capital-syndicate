@@ -53,7 +53,7 @@ namespace CapitalSyndicate.Domain.Projetos
 
         private static int CalcularEscala(IEnumerable<CartaProfissional> profissionais, CartaProfissional gerente)
         {
-            return gerente.Cargo == Cargo.FACILITADOR
+            return gerente.Cargo == Cargo.Facilitador
                 ? profissionais.Count() + 1
                 : profissionais.Count();
         }

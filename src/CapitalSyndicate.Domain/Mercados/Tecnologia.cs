@@ -37,7 +37,7 @@ namespace CapitalSyndicate.Domain.Mercados
             return Patamares;
         }
 
-        public static void ResetarAoFimDoTrimestre(List<Presenca> presencas>)
+        public static void ResetarAoFimDoTrimestre(List<Presenca> presencas)
         {
             foreach (Presenca p in presencas)
             {
