@@ -1,4 +1,7 @@
-﻿namespace CapitalSyndicate.Domain.Mercados
+﻿using CapitalSyndicate.Domain.Jogadores;
+using CapitalSyndicate.Domain.Partidas;
+
+namespace CapitalSyndicate.Domain.Mercados
 {
     internal class Infraestrutura : Mercado
     {
@@ -13,24 +16,43 @@
 
         protected override List<Patamar> CriarPatamares(bool avancado)
         {
-            if (!avancado)
+            int[] pontos = avancado
+                ? [2, 4, 6, 8, 10, 12]
+                : [0, 0, 4, 7, 9, 12];
+
+            List<Patamar> patamares = [];
+            for (int i = 0; i < pontos.Length; i++)
             {
-                int[] pontos = [0, 0, 4, 7, 9, 12];
-                for (int i = 1; i <= 6; i++)
-                {
-                    Patamares.Add(new Patamar(i, pontos[i]));
-                }
-            }
-            else
-            {
-                int[] pontos = [2, 4, 6, 8, 10, 12];
-                for (int i = 1; i <= 6; i++)
-                {
-                    Patamares.Add(new Patamar(i, pontos[i]));
-                }
+                patamares.Add(new Patamar(i + 1, pontos[i]));
             }
 
-            return Patamares;
+            return patamares;
+        }
+
+        public override int ObterPontuacaoJogador(Jogador jogador, Partida partida)
+        {
+            Presenca presenca = jogador.PresencasDeMercado.First(p => p.Mercado == this);
+
+            if (!Monopolio)
+            {
+                return Patamares[presenca.IndicePatamar].Pontos;
+            }
+
+            List<Presenca> presencasNesseMercado = [.. partida.Jogadores
+                .Select(j => j.PresencasDeMercado.FirstOrDefault(p => p.Mercado == this))
+                .Where(p => p != null)
+                .Cast<Presenca>()];
+
+            int maiorIndice = presencasNesseMercado.Max(p => p.IndicePatamar);
+            if (presenca.IndicePatamar < maiorIndice)
+            {
+                return 0;
+            }
+
+            int quantidadeLideres = presencasNesseMercado.Count(p => p.IndicePatamar == maiorIndice);
+            int pontosDoTopo = Patamares[maiorIndice].Pontos;
+
+            return quantidadeLideres > 1 ? pontosDoTopo / 2 : pontosDoTopo;
         }
     }
 }

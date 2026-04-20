@@ -7,7 +7,7 @@ namespace CapitalSyndicate.Domain.Jogadores
     internal class Jogador(string nome)
     {
         public string Nome { get; } = nome;
-        public int PontosVitoria { get; } = 0;
+        public int PontosVitoria { get; set; } = 0;
         public IEnumerable<Token> Tokens { get; } = [];
         public List<Projeto> ProjetosNaMesa { get; } = [];
         public List<Carta> CartasNaMao { get; } = [];

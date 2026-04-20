@@ -1,4 +1,5 @@
 ﻿using CapitalSyndicate.Domain.Jogadores;
+using CapitalSyndicate.Domain.Partidas;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
@@ -7,8 +8,10 @@ namespace CapitalSyndicate.Domain.Mercados
         public string Nome { get; set; }
         public List<Patamar> Patamares { get; set; }
 
-        public void AvancarPresenca(Presenca presenca, int escalaProjeto)
+        public virtual void AvancarPresenca(Jogador jogador, int escalaProjeto, Partida partida)
         {
+            Presenca presenca = jogador.PresencasDeMercado.First(p => p.Mercado == this);
+
             if (presenca.IndicePatamar >= Patamares.Count - 1)
             {
                 throw new Exception("Você já conquistou o maior patamar deste mercado");
@@ -18,10 +21,24 @@ namespace CapitalSyndicate.Domain.Mercados
             if (novoPatamar.Requisito <= escalaProjeto)
             {
                 presenca.Avancar();
+                AoAvancar(jogador, partida);
             }
         }
 
-        public int ObterPontuacaoJogador(Presenca presenca) => Patamares[presenca.IndicePatamar].Pontos;
+        public virtual int ObterPontuacaoJogador(Jogador jogador, Partida partida)
+        {
+            Presenca presenca = jogador.PresencasDeMercado.First(p => p.Mercado == this);
+            return Patamares[presenca.IndicePatamar].Pontos;
+        }
+
+        protected virtual void AoAvancar(Jogador jogador, Partida partida)
+        { }
+
+        protected virtual void AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
+        { }
+
+        protected virtual void AposPontuacaoDoTrimestre(Jogador jogador, Partida partida)
+        { }
 
         protected abstract List<Patamar> CriarPatamares(bool avancado);
     }
