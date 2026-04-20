@@ -8,34 +8,34 @@ namespace CapitalSyndicate.Domain.Projetos
         public int Escala { get; }
         public Setor SetorFinal { get; }
         public IReadOnlyList<CartaProfissional> Profissionais { get; }
-        public CartaProfissional Lider { get; }
+        public CartaProfissional Gerente { get; }
 
-        private Projeto(IEnumerable<CartaProfissional> profissionais, CartaProfissional lider)
+        private Projeto(IEnumerable<CartaProfissional> profissionais, CartaProfissional gerente)
         {
             Profissionais = [.. profissionais];
-            Lider = lider;
-            Escala = CalcularEscala(profissionais, lider);
-            SetorFinal = lider.Setor;
+            Gerente = gerente;
+            Escala = CalcularEscala(profissionais, gerente);
+            SetorFinal = gerente.Setor;
         }
 
-        public static Projeto Criar(List<CartaProfissional> profissionais, CartaProfissional lider)
+        public static Projeto Criar(List<CartaProfissional> profissionais, CartaProfissional gerente)
         {
             if (profissionais is null || profissionais.Count == 0)
             {
                 throw new Exception("Selecione pelo menos um profissional para criar o projeto.");
             }
 
-            if (!profissionais.Contains(lider))
+            if (!profissionais.Contains(gerente))
             {
-                throw new Exception("O líder escolhido deve fazer parte do projeto.");
+                throw new Exception("O gerente escolhido deve fazer parte do projeto.");
             }
 
-            if (lider == null)
+            if (gerente == null)
             {
-                throw new Exception("Escolha um líder para o projeto.");
+                throw new Exception("Escolha um gerente para o projeto.");
             }
 
-            if (!lider.PodeSerLider())
+            if (!gerente.PodeSerLider())
             {
                 throw new Exception("Esse profissional não pode atuar como líder.");
             }
@@ -48,12 +48,12 @@ namespace CapitalSyndicate.Domain.Projetos
                 throw new Exception("Os profissionais precisam compartilhar o mesmo setor ou cargo.");
             }
 
-            return new Projeto(profissionais, lider);
+            return new Projeto(profissionais, gerente);
         }
 
-        private static int CalcularEscala(IEnumerable<CartaProfissional> profissionais, CartaProfissional lider)
+        private static int CalcularEscala(IEnumerable<CartaProfissional> profissionais, CartaProfissional gerente)
         {
-            return lider.Cargo == Cargo.FACILITADOR
+            return gerente.Cargo == Cargo.FACILITADOR
                 ? profissionais.Count() + 1
                 : profissionais.Count();
         }
