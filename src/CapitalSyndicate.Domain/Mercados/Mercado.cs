@@ -4,7 +4,7 @@ using CapitalSyndicate.Domain.Projetos;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
-    internal abstract class Mercado
+    public abstract class Mercado
     {
         public string Nome { get; set; } = string.Empty;
         public List<Patamar> Patamares { get; set; } = [];
@@ -37,13 +37,13 @@ namespace CapitalSyndicate.Domain.Mercados
             return Patamares[presenca.IndicePatamar].Pontos;
         }
 
-        protected virtual void AoAvancar(Jogador jogador, Partida partida)
+        public virtual void AoAvancar(Jogador jogador, Partida partida)
         { }
 
-        protected virtual void AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
+        public virtual void AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
         { }
 
-        protected virtual void AposPontuacaoDoTrimestre(Jogador jogador, Partida partida)
+        public virtual void AposPontuacaoDoTrimestre(Jogador jogador, Partida partida)
         { }
 
         protected abstract List<Patamar> CriarPatamares(bool avancado);

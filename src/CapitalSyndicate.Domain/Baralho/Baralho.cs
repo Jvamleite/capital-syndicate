@@ -2,14 +2,14 @@
 
 namespace CapitalSyndicate.Domain.Baralhos
 {
-    internal class Baralho
+    public class Baralho
     {
         private const int NumeroDeCrises = 3;
-        private static readonly Random Rng = new();
+        private static readonly Random Random = new();
 
         public Stack<Carta> Monte { get; }
-        public List<Carta> MercadoDeTalentos { get; set; }
-        public IEnumerable<Carta> Descarte { get; set; }
+        public List<Carta> MercadoDeTalentos { get; }
+        public IReadOnlyList<Carta> Descarte { get; private set; }
 
         public Baralho(List<Carta> cartasNormais, List<Carta> cartasCrise, int numJogadores)
         {
@@ -18,26 +18,7 @@ namespace CapitalSyndicate.Domain.Baralhos
             Descarte = [];
         }
 
-        public IEnumerable<Carta> ComprarCartaDoMonte(int n = 1)
-        {
-            List<Carta> cartasCompradas = [];
-            if (MercadoDeTalentos.Count == 0)
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    cartasCompradas.Add(Monte.Pop());
-                }
-            }
-            else
-            {
-                for (int i = 0; i < n; i++)
-                {
-                    cartasCompradas.Add(Monte.Pop());
-                }
-            }
-
-            return cartasCompradas;
-        }
+        public Carta ComprarCartaDoMonte() => Monte.Pop();
 
         public Carta ComprarCartaDoMercadoDeTalentos(Guid idCarta)
         {
@@ -54,7 +35,7 @@ namespace CapitalSyndicate.Domain.Baralhos
 
         public void DescartarCartasDoMercadoDeTalentos()
         {
-            Descarte = MercadoDeTalentos;
+            Descarte = [.. MercadoDeTalentos];
             MercadoDeTalentos.Clear();
         }
 
@@ -116,10 +97,10 @@ namespace CapitalSyndicate.Domain.Baralhos
         {
             List<Carta> resultado = [.. cartas];
 
-            for (int i = resultado.Count - 1; i > 0; i--)
+            for (int indiceAtual = resultado.Count - 1; indiceAtual > 0; indiceAtual--)
             {
-                int j = Rng.Next(i + 1);
-                (resultado[i], resultado[j]) = (resultado[j], resultado[i]);
+                int indiceAleatorio = Random.Next(indiceAtual + 1);
+                (resultado[indiceAtual], resultado[indiceAleatorio]) = (resultado[indiceAleatorio], resultado[indiceAtual]);
             }
 
             return resultado;

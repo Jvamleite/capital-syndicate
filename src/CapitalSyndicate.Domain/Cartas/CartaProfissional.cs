@@ -2,7 +2,7 @@
 
 namespace CapitalSyndicate.Domain.Cartas
 {
-    internal class CartaProfissional : Carta
+    public class CartaProfissional : Carta
     {
         public Setor Setor { get; set; }
         public Cargo Cargo { get; set; }

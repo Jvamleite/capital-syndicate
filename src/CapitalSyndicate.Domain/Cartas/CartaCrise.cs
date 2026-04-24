@@ -1,12 +1,10 @@
-﻿namespace CapitalSyndicate.Domain.Cartas
-{
-    internal class CartaCrise : Carta
-    {
-        public string? DescricaoCrise { get; set; }
+﻿using CapitalSyndicate.Domain.Jogadores;
+using CapitalSyndicate.Domain.Partidas;
 
-        public override string Descricao()
-        {
-            return $"Crise revelada: {DescricaoCrise}";
-        }
+namespace CapitalSyndicate.Domain.Cartas
+{
+    public abstract class CartaCrise : Carta
+    {
+        public abstract void Resolver(Jogador jogadorQueRevelou, Partida partida);
     }
 }

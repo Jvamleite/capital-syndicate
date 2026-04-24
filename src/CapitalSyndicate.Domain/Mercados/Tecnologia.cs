@@ -58,7 +58,7 @@ namespace CapitalSyndicate.Domain.Mercados
             return Patamares[maiorIndice].Pontos;
         }
 
-        protected override void AposPontuacaoDoTrimestre(Jogador jogador, Partida partida)
+        public override void AposPontuacaoDoTrimestre(Jogador jogador, Partida partida)
         {
             if (!ApenasLiderPontua)
             {
