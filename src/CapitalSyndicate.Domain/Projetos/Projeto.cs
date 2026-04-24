@@ -7,14 +7,14 @@ namespace CapitalSyndicate.Domain.Projetos
     {
         public int Escala { get; }
         public Setor SetorFinal { get; }
-        public IReadOnlyList<CartaProfissional> Profissionais { get; }
+        public List<CartaProfissional> Profissionais { get; }
         public CartaProfissional Gerente { get; }
 
         private Projeto(IEnumerable<CartaProfissional> profissionais, CartaProfissional gerente)
         {
             Profissionais = [.. profissionais];
             Gerente = gerente;
-            Escala = CalcularEscala(profissionais, gerente);
+            Escala = CalcularEscala(profissionais);
             SetorFinal = gerente.Setor;
         }
 
@@ -25,14 +25,14 @@ namespace CapitalSyndicate.Domain.Projetos
                 throw new Exception("Selecione pelo menos um profissional para criar o projeto.");
             }
 
-            if (!profissionais.Contains(gerente))
-            {
-                throw new Exception("O gerente escolhido deve fazer parte do projeto.");
-            }
-
             if (gerente == null)
             {
                 throw new Exception("Escolha um gerente para o projeto.");
+            }
+
+            if (!profissionais.Contains(gerente))
+            {
+                throw new Exception("O gerente escolhido deve fazer parte do projeto.");
             }
 
             if (!gerente.PodeSerGerente())
@@ -40,8 +40,9 @@ namespace CapitalSyndicate.Domain.Projetos
                 throw new Exception("Esse profissional não pode atuar como líder.");
             }
 
-            bool mesmoSetor = profissionais.All(p => p.Setor == profissionais[0].Setor);
-            bool mesmoCargo = profissionais.All(p => p.Cargo == profissionais[0].Cargo);
+            List<CartaProfissional> profissionaisComuns = [.. profissionais.Where(p => p.Cargo != Cargo.ConsultorExterno || p.Cargo != Cargo.Trainee)];
+            bool mesmoSetor = profissionaisComuns.All(p => p.Setor == profissionais[0].Setor);
+            bool mesmoCargo = profissionaisComuns.All(p => p.Cargo == profissionais[0].Cargo);
 
             if (!(mesmoSetor || mesmoCargo))
             {
@@ -51,11 +52,9 @@ namespace CapitalSyndicate.Domain.Projetos
             return new Projeto(profissionais, gerente);
         }
 
-        private static int CalcularEscala(IEnumerable<CartaProfissional> profissionais, CartaProfissional gerente)
+        private static int CalcularEscala(IEnumerable<CartaProfissional> profissionais)
         {
-            return gerente.Cargo == Cargo.Facilitador
-                ? profissionais.Count() + 1
-                : profissionais.Count();
+            return profissionais.Count();
         }
     }
 }
