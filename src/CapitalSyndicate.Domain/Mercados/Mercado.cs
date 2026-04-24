@@ -16,7 +16,7 @@ namespace CapitalSyndicate.Domain.Mercados
             AoAvancar(jogador, partida);
         }
 
-        public bool PodeAvancar(Jogador jogador, Projeto projeto)
+        public virtual bool PodeAvancar(Jogador jogador, Projeto projeto)
         {
             Presenca presenca = jogador.PresencasDeMercado.First(p => p.Mercado == this);
 

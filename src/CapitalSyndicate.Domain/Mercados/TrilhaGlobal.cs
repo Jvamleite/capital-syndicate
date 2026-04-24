@@ -46,7 +46,7 @@ namespace CapitalSyndicate.Domain.Mercados
                 if (Patamares[i])
                 {
                     List<Presenca> presencasDisponiveis = [.. jogador.PresencasDeMercado];
-                    Presenca presenca = partida.Entrada.EscolherPresencaParaMemorado(jogador, presencasDisponiveis);
+                    Presenca presenca = partida.Entrada.EscolherPresencaParaMemorando(jogador, presencasDisponiveis);
                     presenca.Avancar();
                 }
             }

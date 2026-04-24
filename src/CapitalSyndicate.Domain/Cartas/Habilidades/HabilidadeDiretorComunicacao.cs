@@ -3,7 +3,7 @@ using CapitalSyndicate.Domain.Projetos;
 
 namespace CapitalSyndicate.Domain.Cartas.Habilidades
 {
-    internal class HabilidadeDiretorComunicacoes : IHabilidadeLider
+    internal class HabilidadeDiretorComunicacao : IHabilidadeLider
     {
         void IHabilidadeLider.AoFimDoTrimestre(Jogador ativo, Projeto projeto)
         {
