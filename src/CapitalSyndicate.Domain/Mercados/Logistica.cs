@@ -1,5 +1,6 @@
 ﻿using CapitalSyndicate.Domain.Jogadores;
 using CapitalSyndicate.Domain.Partidas;
+using CapitalSyndicate.Domain.Projetos;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
@@ -50,17 +51,30 @@ namespace CapitalSyndicate.Domain.Mercados
             return p;
         }
 
-        public override void AvancarPresenca(Jogador jogador, int escalaProjeto, Partida partida)
+        public override bool PodeAvancar(Jogador jogador, Projeto projeto)
         {
             if (!ExpansaoParalela)
             {
-                base.AvancarPresenca(jogador, escalaProjeto, partida);
-                return;
+                return base.PodeAvancar(jogador, projeto);
             }
 
             Presenca primeiro = jogador.PresencasDeMercado.First(p => p.Mercado == this);
             Presenca segundo = ObterSegundoMarcador(jogador);
 
+            return PodeAvancarPresenca(primeiro, projeto.Escala)
+                || PodeAvancarPresenca(segundo, projeto.Escala);
+        }
+
+        public override void AvancarPresenca(Jogador jogador, Partida partida)
+        {
+            if (!ExpansaoParalela)
+            {
+                base.AvancarPresenca(jogador, partida);
+                return;
+            }
+
+            Presenca primeiro = jogador.PresencasDeMercado.First(p => p.Mercado == this);
+            Presenca segundo = ObterSegundoMarcador(jogador);
             Presenca escolhido = partida.Entrada.EscolherMarcadorLogistica(jogador, primeiro, segundo);
 
             if (escolhido.IndicePatamar >= Patamares.Count - 1)
@@ -68,12 +82,18 @@ namespace CapitalSyndicate.Domain.Mercados
                 throw new Exception("Esse marcador já está no maior patamar.");
             }
 
-            Patamar novoPatamar = Patamares[escolhido.IndicePatamar + 1];
-            if (novoPatamar.Requisito <= escalaProjeto)
+            escolhido.Avancar();
+            AoAvancar(jogador, partida);
+        }
+
+        private bool PodeAvancarPresenca(Presenca presenca, int escalaProjeto)
+        {
+            if (presenca.IndicePatamar >= Patamares.Count - 1)
             {
-                escolhido.Avancar();
-                AoAvancar(jogador, partida);
+                return false;
             }
+
+            return Patamares[presenca.IndicePatamar + 1].Requisito <= escalaProjeto;
         }
 
         public override int ObterPontuacaoJogador(Jogador jogador, Partida partida)

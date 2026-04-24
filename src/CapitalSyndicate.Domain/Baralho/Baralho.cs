@@ -18,7 +18,7 @@ namespace CapitalSyndicate.Domain.Baralhos
             Descarte = [];
         }
 
-        public IEnumerable<Carta> ComprarCartaDoMonte()
+        public IEnumerable<Carta> ComprarCartaDoMonte(int n = 1)
         {
             List<Carta> cartasCompradas = [];
             if (MercadoDeTalentos.Count == 0)
@@ -30,7 +30,10 @@ namespace CapitalSyndicate.Domain.Baralhos
             }
             else
             {
-                cartasCompradas.Add(Monte.Pop());
+                for (int i = 0; i < n; i++)
+                {
+                    cartasCompradas.Add(Monte.Pop());
+                }
             }
 
             return cartasCompradas;
