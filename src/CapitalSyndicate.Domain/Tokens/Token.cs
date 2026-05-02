@@ -2,7 +2,7 @@
 
 namespace CapitalSyndicate.Domain.Tokens
 {
-    internal abstract class Token
+    public abstract class Token
     {
         public int Valor { get; set; }
 

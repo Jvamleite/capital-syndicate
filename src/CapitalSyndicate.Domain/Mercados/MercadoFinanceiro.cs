@@ -38,7 +38,7 @@ namespace CapitalSyndicate.Domain.Mercados
             return patamares;
         }
 
-        protected override void AoAvancar(Jogador jogador, Partida partida)
+        public override void AoAvancar(Jogador jogador, Partida partida)
         {
             if (!CashOutDisponivel)
             {

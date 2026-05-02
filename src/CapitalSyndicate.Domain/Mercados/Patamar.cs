@@ -1,6 +1,6 @@
 ﻿namespace CapitalSyndicate.Domain.Mercados
 {
-    internal class Patamar
+    public class Patamar
     {
         public int Requisito { get; set; }
         public int Pontos { get; set; }

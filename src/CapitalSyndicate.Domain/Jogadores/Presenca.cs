@@ -2,7 +2,7 @@
 
 namespace CapitalSyndicate.Domain.Jogadores
 {
-    internal class Presenca(Mercado mercado, Guid id)
+    public class Presenca(Mercado mercado, Guid id)
     {
         public Guid Id { get; set; } = id;
         public int IndicePatamar { get; set; } = 0;

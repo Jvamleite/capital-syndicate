@@ -38,7 +38,7 @@ namespace CapitalSyndicate.Domain.Mercados
             return patamares;
         }
 
-        protected override void AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
+        public override void AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
         {
             if (!OperacoesAfterHours)
             {
