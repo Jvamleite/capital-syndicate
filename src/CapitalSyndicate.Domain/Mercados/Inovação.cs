@@ -56,8 +56,8 @@ namespace CapitalSyndicate.Domain.Mercados
             while (jogador.CartasNaMao.Count < limiteEfetivo
                 && jogador.CartasNaMao.Count < LimiteMaoMaximo)
             {
-                IEnumerable<Carta> cartas = partida.Baralho.ComprarCartaDoMonte();
-                jogador.CartasNaMao.AddRange(cartas);
+                Carta cartas = partida.Baralho.ComprarCartaDoMonte();
+                jogador.CartasNaMao.Add(cartas);
             }
         }
     }

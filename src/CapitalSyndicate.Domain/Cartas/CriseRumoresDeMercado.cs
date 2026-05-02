@@ -9,7 +9,7 @@ namespace CapitalSyndicate.Domain.Cartas
         {
             partida.Baralho.DescartarCartasDoMercadoDeTalentos();
             partida.Baralho.AdicionarCartasNoMercadoDeTalentos(
-                [.. partida.Baralho.ComprarCartaDoMonte()]
+                [partida.Baralho.ComprarCartaDoMonte()]
             );
         }
 
