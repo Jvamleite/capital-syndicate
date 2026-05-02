@@ -9,8 +9,13 @@ namespace CapitalSyndicate.Domain.Cartas.Habilidades
         void IHabilidadeLider.AposAvanco(Jogador ativo, Partida partida, Projeto projeto)
         {
             int escalaProjeto = projeto.Escala;
-            IEnumerable<Carta> cartasBaralho = partida.Baralho.ComprarCartaDoMonte(escalaProjeto);
-            ativo.CartasNaMao.AddRange(cartasBaralho);
+            List<Carta> cartasCompradas = [];
+            for (int i = 0; i < escalaProjeto; i++)
+            {
+                cartasCompradas.Add(partida.Baralho.ComprarCartaDoMonte());
+            }
+
+            ativo.CartasNaMao.AddRange(cartasCompradas);
         }
     }
 }

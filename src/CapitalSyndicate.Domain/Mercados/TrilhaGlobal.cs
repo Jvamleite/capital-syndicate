@@ -3,7 +3,7 @@ using CapitalSyndicate.Domain.Partidas;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
-    internal class TrilhaGlobal
+    public class TrilhaGlobal
     {
         public readonly List<bool> Patamares;
         public readonly Dictionary<Jogador, int> Posicoes = [];

@@ -1,15 +1,15 @@
 ﻿using CapitalSyndicate.Domain.Cartas;
-using CapitalSyndicate.Domain.Cartas.Habilidades;
 using CapitalSyndicate.Domain.Enums;
-using CapitalSyndicate.Domain.Mercados;
 using CapitalSyndicate.Domain.Partidas;
 using CapitalSyndicate.Domain.Projetos;
 using CapitalSyndicate.Domain.Tokens;
 
 namespace CapitalSyndicate.Domain.Jogadores
 {
-    internal class Jogador(string nome)
+    public class Jogador(string nome)
     {
+        private const int CapacidadeMaximaDaMao = 10;
+
         public string Nome { get; } = nome;
         public int PontosVitoria { get; set; } = 0;
         public List<Token> Tokens { get; } = [];
@@ -19,79 +19,45 @@ namespace CapitalSyndicate.Domain.Jogadores
 
         public void ComprarCartas(IEnumerable<Carta> cartas)
         {
-            if (CartasNaMao.Count == 10)
+            if (CartasNaMao.Count == CapacidadeMaximaDaMao)
             {
-                throw new Exception("Sua mão está cheia. Execute um projeto antes de comprar mais cartas.");
+                throw new InvalidOperationException("Sua mão está cheia. Execute um projeto antes de comprar mais cartas.");
             }
 
             CartasNaMao.AddRange(cartas);
         }
 
-        public IReadOnlyList<Carta> ExecutarProjeto(Projeto projeto, Partida partida, bool segundoProjeto = false)
+        public void ValidarCartas(Projeto projeto)
         {
-            if (!projeto.Profissionais.All(p => CartasNaMao.Contains(p)))
+            if (!projeto.Profissionais.All(CartasNaMao.Contains))
             {
-                throw new Exception("Você não tem todas as cartas necessárias para este projeto.");
+                throw new InvalidOperationException("Você não tem todas as cartas necessárias para este projeto.");
             }
-
-            CartasNaMao.RemoveAll(x => projeto.Profissionais.Contains(x));
-
-            ProjetosNaMesa.Add(projeto);
-
-            Mercado mercado;
-
-            if (projeto.Gerente.Cargo == Cargo.DiretorDeExpansao)
-            {
-                mercado = partida.Entrada.EscolherMercadoExpansao(this, partida);
-            }
-            else
-            {
-                mercado = partida.ObterMercado(projeto.SetorFinal);
-            }
-
-            bool podeAvancar = mercado.PodeAvancar(this, projeto);
-
-            Cargo cargoGerenteProjeto = projeto.Gerente.Cargo;
-            IHabilidadeLider habilidadeLider = cargoGerenteProjeto.ObterHabilidade();
-            if (cargoGerenteProjeto == Cargo.NegociadorInternacional && partida.TrilhaGlobal != null)
-            {
-                partida.TrilhaGlobal.AvancarPresenca(this, partida, projeto.Escala);
-            }
-            else if (podeAvancar)
-            {
-                mercado.AvancarPresenca(this, partida);
-                habilidadeLider.AposAvanco(this, partida, projeto);
-            }
-
-            if (!segundoProjeto && podeAvancar && cargoGerenteProjeto == Cargo.DiretorDeOperacoes)
-            {
-                partida.Entrada.ExecutarProjetoAdicional(this, mercado);
-            }
-
-            if (Cargo.Auditor == cargoGerenteProjeto || Cargo.GestorDePortifolio == cargoGerenteProjeto || Cargo.EspecialistaEsg == cargoGerenteProjeto)
-            {
-                Tokens.Add(Token.GerarToken(cargoGerenteProjeto));
-            }
-
-            return FazerLayoff(partida, projeto);
         }
 
-        public IReadOnlyList<Carta> FazerLayoff(Partida partida, Projeto projeto)
+        public void AlocarProfissionais(Projeto projeto)
+        {
+            CartasNaMao.RemoveAll(projeto.Profissionais.Contains);
+            ProjetosNaMesa.Add(projeto);
+        }
+
+        public IReadOnlyList<Carta> FazerLayoff(Projeto projeto, Partida partida)
         {
             if (projeto.Gerente.Cargo == Cargo.GestorDeRh)
             {
-                int numCartas = partida.Entrada.EscolherNumManterCartas(this, partida, projeto.Escala);
-                int numCartasDescartar = CartasNaMao.Count - numCartas;
-
-                for (int i = 0; i < numCartasDescartar; i++)
-                {
-                    CartasNaMao.RemoveAt(0);
-                }
+                AplicarLayoffGestorDeRh(projeto, partida);
             }
 
-            List<Carta> cartas = CartasNaMao;
+            List<Carta> cartasDescartadas = [.. CartasNaMao];
             CartasNaMao.Clear();
-            return cartas;
+            return cartasDescartadas;
+        }
+
+        private void AplicarLayoffGestorDeRh(Projeto projeto, Partida partida)
+        {
+            int cartasAManter = partida.Entrada.EscolherNumManterCartas(this, partida, projeto.Escala);
+            int cartasADescartar = CartasNaMao.Count - cartasAManter;
+            CartasNaMao.RemoveRange(0, cartasADescartar);
         }
     }
 }

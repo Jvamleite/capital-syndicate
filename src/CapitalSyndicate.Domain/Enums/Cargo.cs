@@ -2,7 +2,7 @@
 
 namespace CapitalSyndicate.Domain.Enums
 {
-    internal enum Cargo
+    public enum Cargo
     {
         Facilitador,
         DiretorDeComunicacao,
@@ -18,7 +18,7 @@ namespace CapitalSyndicate.Domain.Enums
         ConsultorExterno
     }
 
-    internal static class CargoExtensions
+    public static class CargoExtensions
     {
         private static readonly Dictionary<Cargo, IHabilidadeLider> Habilidades = new()
         {

@@ -1,6 +1,6 @@
 ﻿namespace CapitalSyndicate.Domain.Cartas
 {
-    internal abstract class Carta
+    public abstract class Carta
     {
         public Guid Id { get; set; }
 
