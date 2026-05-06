@@ -11,7 +11,7 @@ namespace CapitalSyndicate.Domain.Baralhos
         public List<Carta> MercadoDeTalentos { get; }
         public IReadOnlyList<Carta> Descarte { get; private set; }
 
-        public Baralho(List<Carta> cartasNormais, List<Carta> cartasCrise, int numJogadores)
+        public Baralho(List<Carta> cartasNormais, IList<Carta> cartasCrise, int numJogadores)
         {
             Monte = new Stack<Carta>(CriarMonte(cartasNormais, cartasCrise));
             MercadoDeTalentos = CriarMercadoDeTalentos(numJogadores);
@@ -50,7 +50,7 @@ namespace CapitalSyndicate.Domain.Baralhos
             return mercadoDeTalentos;
         }
 
-        private static List<Carta> CriarMonte(List<Carta> normais, List<Carta> crises)
+        private static List<Carta> CriarMonte(List<Carta> normais, IList<Carta> crises)
         {
             List<Carta> embaralhadas = Embaralhar(normais);
 
@@ -63,7 +63,7 @@ namespace CapitalSyndicate.Domain.Baralhos
             return [.. parteSuperior, .. parteInferiorComCrises];
         }
 
-        private static List<Carta> DistribuirCrisesNasPilhas(List<Carta> cartas, List<Carta> crises)
+        private static List<Carta> DistribuirCrisesNasPilhas(List<Carta> cartas, IList<Carta> crises)
         {
             List<List<Carta>> pilhas = DividirEmPilhas(cartas, NumeroDeCrises);
 
