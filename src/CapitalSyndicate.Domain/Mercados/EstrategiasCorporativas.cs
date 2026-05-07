@@ -1,5 +1,7 @@
-﻿using CapitalSyndicate.Domain.Jogadores;
+﻿using CapitalSyndicate.Domain.Enums;
+using CapitalSyndicate.Domain.Jogadores;
 using CapitalSyndicate.Domain.Partidas;
+using CapitalSyndicate.Domain.Projetos;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
@@ -52,7 +54,28 @@ namespace CapitalSyndicate.Domain.Mercados
                 return;
             }
 
-            partida.Entrada.ExecutarProjetoAdicional(jogador, this);
+            Projeto? projeto = partida.Entrada.EscolherProjetoAfterHours(jogador, partida, Setor.EstrategiasCorporativa);
+
+            if (projeto is null)
+            {
+                return;
+            }
+
+            if (projeto.Gerente.Setor != Setor.EstrategiasCorporativa)
+            {
+                throw new InvalidOperationException(
+                    $"O gerente do projeto after-hours deve ser do setor {Setor.EstrategiasCorporativa}.");
+            }
+
+            jogador.ValidarCartas(projeto);
+            jogador.AlocarProfissionais(projeto);
+
+            bool podeAvancar = PodeAvancar(jogador, projeto);
+            if (podeAvancar)
+            {
+                AvancarPresenca(jogador, partida);
+                projeto.Gerente.Cargo.ObterHabilidade().AposAvanco(jogador, partida, projeto);
+            }
         }
     }
 }

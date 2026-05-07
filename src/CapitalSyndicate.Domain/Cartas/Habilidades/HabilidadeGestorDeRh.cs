@@ -4,7 +4,7 @@ using CapitalSyndicate.Domain.Projetos;
 
 namespace CapitalSyndicate.Domain.Cartas.Habilidades
 {
-    internal class HabilidadeGestorRh : IHabilidadeLider
+    internal class HabilidadeGestorDeRh : IHabilidadeLider
     {
         void IHabilidadeLider.AposAvanco(Jogador ativo, Partida partida, Projeto projeto)
         {
