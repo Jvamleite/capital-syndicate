@@ -11,9 +11,9 @@ namespace CapitalSyndicate.Domain.Baralhos
         public List<Carta> MercadoDeTalentos { get; }
         public IReadOnlyList<Carta> Descarte { get; private set; }
 
-        public Baralho(List<Carta> cartasNormais, List<Carta> cartasCrise, int numJogadores)
+        public Baralho(List<Carta> cartasNormais, IEnumerable<Carta> cartasCrise, int numJogadores)
         {
-            Monte = new Stack<Carta>(CriarMonte(cartasNormais, cartasCrise));
+            Monte = new Stack<Carta>(CriarMonte(cartasNormais, [.. cartasCrise]));
             MercadoDeTalentos = CriarMercadoDeTalentos(numJogadores);
             Descarte = [];
         }

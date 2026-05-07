@@ -4,7 +4,7 @@
     {
         MercadoFinanceiro,
         Tecnologia,
-        EstrategiaCorporativa,
+        EstrategiasCorporativa,
         Infraestrutura,
         Logistica,
         Inovacao
