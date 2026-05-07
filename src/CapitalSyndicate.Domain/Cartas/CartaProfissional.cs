@@ -9,7 +9,7 @@ namespace CapitalSyndicate.Domain.Cartas
 
         public bool PodeSerGerente()
         {
-            return Cargo != Cargo.ConsultorExterno || Cargo != Cargo.Trainee;
+            return Cargo != Cargo.ConsultorExterno && Cargo != Cargo.Trainee;
         }
 
         public override string Descricao()

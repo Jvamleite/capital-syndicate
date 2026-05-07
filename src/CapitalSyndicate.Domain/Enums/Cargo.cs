@@ -22,12 +22,18 @@ namespace CapitalSyndicate.Domain.Enums
     {
         private static readonly Dictionary<Cargo, IHabilidadeLider> Habilidades = new()
         {
-                { Cargo.ConsultorExterno, new HabilidadeConsultorExterno() },
-                { Cargo.Auditor, new HabilidadeAuditor() },
-                { Cargo.EspecialistaEsg, new HabilidadeEspecialistaEsg() },
-                { Cargo.GestorDePortifolio, new HabilidadeGestorPortifolio() },
-                { Cargo.Investidor, new HabilidadeInvestidor() },
-                { Cargo.DiretorDeComunicacao, new HabilidadeDiretorComunicacao() },
+            { Cargo.Facilitador,             new HabilidadeFacilitador() },
+            { Cargo.DiretorDeComunicacao,    new HabilidadeDiretorComunicacao() },
+            { Cargo.Investidor,              new HabilidadeInvestidor() },
+            { Cargo.GestorDeRh,              new HabilidadeGestorDeRh() },
+            { Cargo.DiretorDeExpansao,       new HabilidadeDiretorDeExpansao() },
+            { Cargo.DiretorDeOperacoes,      new HabilidadeDiretorDeOperacoes() },
+            { Cargo.EspecialistaEsg,         new HabilidadeEspecialistaEsg() },
+            { Cargo.GestorDePortifolio,      new HabilidadeGestorPortifolio() },
+            { Cargo.Auditor,                 new HabilidadeAuditor() },
+            { Cargo.NegociadorInternacional, new HabilidadeNegociadorInternacional() },
+            { Cargo.Trainee,                 new HabilidadeTrainee() },
+            { Cargo.ConsultorExterno,        new HabilidadeConsultorExterno() },
         };
 
         public static IHabilidadeLider ObterHabilidade(this Cargo cargo)
