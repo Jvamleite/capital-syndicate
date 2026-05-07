@@ -46,20 +46,10 @@ namespace CapitalSyndicate.Application.Turnos
 
             List<Carta> cartasDescartadas = [.. ResolverExecucaoDeProjeto(projeto, turno.Jogador, partida, podeAvancar)];
 
-            if (PodeExecutarProjetoAdicional(projeto.Gerente.Cargo, turno.Jogador, mercado, partida, podeAvancar))
-            {
-                cartasDescartadas.AddRange(ResolverExecucaoDeProjeto(projeto, turno.Jogador, partida, podeAvancar));
-            }
-
             turno.Encerrar();
             trimestre.AvancarTurno();
 
             return cartasDescartadas;
-        }
-
-        private static bool PodeExecutarProjetoAdicional(Cargo cargoGerente, Jogador jogador, Mercado mercado, Partida partida, bool houveAvanco)
-        {
-            return houveAvanco && cargoGerente == Cargo.DiretorDeOperacoes && partida.Entrada.ExecutarProjetoAdicional(jogador, mercado);
         }
 
         private static IEnumerable<Carta> ResolverExecucaoDeProjeto(Projeto projeto, Jogador jogador, Partida partida, bool podeAvancar)
@@ -70,7 +60,16 @@ namespace CapitalSyndicate.Application.Turnos
             Mercado mercado = partida.ObterMercado(projeto.SetorFinal);
             if (podeAvancar)
             {
-                AvancarPresenca(projeto, jogador, partida, mercado);
+                bool avancoTratadoPelaHabilidade = projeto.Gerente.Cargo
+                    is Cargo.NegociadorInternacional
+                    or Cargo.DiretorDeExpansao;
+
+                if (!avancoTratadoPelaHabilidade)
+                {
+                    mercado.AvancarPresenca(jogador, partida);
+                }
+
+                projeto.Gerente.Cargo.ObterHabilidade().AposAvanco(jogador, partida, projeto);
             }
 
             TentarGerarToken(projeto, jogador);
@@ -110,18 +109,6 @@ namespace CapitalSyndicate.Application.Turnos
             projeto.Gerente.Cargo == Cargo.DiretorDeExpansao
                 ? partida.Entrada.EscolherMercadoExpansao(jogador, partida)
                 : partida.ObterMercado(projeto.SetorFinal);
-
-        private static void AvancarPresenca(Projeto projeto, Jogador jogador, Partida partida, Mercado mercado)
-        {
-            if (projeto.Gerente.Cargo == Cargo.NegociadorInternacional && partida.TrilhaGlobal != null)
-            {
-                partida.TrilhaGlobal.AvancarPresenca(jogador, partida, projeto.Escala);
-                return;
-            }
-
-            mercado.AvancarPresenca(jogador, partida);
-            projeto.Gerente.Cargo.ObterHabilidade().AposAvanco(jogador, partida, projeto);
-        }
 
         private static void TentarGerarToken(Projeto projeto, Jogador jogador)
         {

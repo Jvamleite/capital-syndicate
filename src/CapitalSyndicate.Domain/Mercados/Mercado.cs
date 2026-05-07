@@ -1,4 +1,5 @@
-﻿using CapitalSyndicate.Domain.Jogadores;
+﻿using CapitalSyndicate.Domain.Enums;
+using CapitalSyndicate.Domain.Jogadores;
 using CapitalSyndicate.Domain.Partidas;
 using CapitalSyndicate.Domain.Projetos;
 
@@ -25,10 +26,12 @@ namespace CapitalSyndicate.Domain.Mercados
                 return false;
             }
 
-            int escalaProjeto = projeto.Gerente.Cargo == Enums.Cargo.Facilitador ? projeto.Escala + 1 : projeto.Escala;
+            int escalaEfetiva = projeto.Gerente.Cargo
+                .ObterHabilidade()
+                .ModificarEscalaParaAvanco(projeto.Escala);
 
             Patamar novoPatamar = Patamares[presenca.IndicePatamar + 1];
-            return novoPatamar.Requisito <= escalaProjeto;
+            return novoPatamar.Requisito <= escalaEfetiva;
         }
 
         public virtual int ObterPontuacaoJogador(Jogador jogador, Partida partida)
