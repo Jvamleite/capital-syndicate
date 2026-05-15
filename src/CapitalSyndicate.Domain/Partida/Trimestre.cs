@@ -11,25 +11,24 @@ namespace CapitalSyndicate.Domain.Partidas
         public int CrisesReveladas { get; set; }
         public bool Encerrado { get; private set; }
 
-        private readonly Queue<Turno> _turnos;
-        public Turno TurnoAtual => _turnos.Peek();
+        private readonly Queue<Jogador> _jogadores;
+        public Turno TurnoAtual { get; private set; }
 
         public Trimestre(int numero, IEnumerable<Jogador> jogadores)
         {
             Numero = numero;
-            _turnos = new Queue<Turno>(
-                jogadores.Select(j => new Turno(j))
-            );
+            _jogadores = new Queue<Jogador>(jogadores);
+            TurnoAtual = new Turno(_jogadores.Peek());
         }
 
         public void AvancarTurno()
         {
-            _turnos.Dequeue();
+            TurnoAtual.Encerrar();
 
-            if (_turnos.Count == 0)
-            {
-                Encerrado = true;
-            }
+            Jogador jogador = _jogadores.Dequeue();
+            _jogadores.Enqueue(jogador);
+
+            TurnoAtual = new Turno(_jogadores.Peek());
         }
 
         public void Encerrar(Partida partida)

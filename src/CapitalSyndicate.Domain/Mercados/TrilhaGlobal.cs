@@ -36,7 +36,7 @@ namespace CapitalSyndicate.Domain.Mercados
             return patamares;
         }
 
-        public void AvancarPresenca(Jogador jogador, Partida partida, int escalaProjeto)
+        public async Task AvancarPresenca(Jogador jogador, Partida partida, int escalaProjeto)
         {
             int posicaoAtual = Posicoes[jogador];
             int novaPosicao = Math.Min(posicaoAtual + escalaProjeto, Patamares.Count - 1);
@@ -46,7 +46,7 @@ namespace CapitalSyndicate.Domain.Mercados
                 if (Patamares[i])
                 {
                     List<Presenca> presencasDisponiveis = [.. jogador.PresencasDeMercado];
-                    Presenca presenca = partida.Entrada.EscolherPresencaParaMemorando(jogador, presencasDisponiveis);
+                    Presenca presenca = await partida.Entrada.EscolherPresencaParaMemorando(jogador, presencasDisponiveis);
                     presenca.Avancar();
                 }
             }

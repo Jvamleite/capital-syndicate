@@ -7,17 +7,24 @@ namespace CapitalSyndicate.Domain.Cartas.Habilidades
 {
     internal class HabilidadeDiretorDeExpansao : IHabilidadeLider
     {
-        void IHabilidadeLider.AposAvanco(Jogador ativo, Partida partida, Projeto projeto)
+        async Task IHabilidadeLider.AposAvanco(Jogador ativo, Partida partida, Projeto projeto)
         {
-            Mercado mercadoEscolhido = partida.Entrada.EscolherMercadoExpansao(ativo, partida);
+            List<Mercado> mercadosValidos =
+                [.. partida.Mercados.Where(m => m.PodeAvancar(ativo, projeto))];
 
-            if (!mercadoEscolhido.PodeAvancar(ativo, projeto))
+            if (mercadosValidos.Count == 0)
             {
-                throw new InvalidOperationException(
-                    "A escala do projeto não atinge o requisito do mercado escolhido.");
+                return;
             }
 
-            mercadoEscolhido.AvancarPresenca(ativo, partida);
+            Mercado mercadoEscolhido =
+                await partida.Entrada.EscolherMercadoExpansao(
+                    ativo,
+                    mercadosValidos);
+
+            mercadoEscolhido.AvancarPresenca(
+                ativo,
+                partida);
         }
     }
 }

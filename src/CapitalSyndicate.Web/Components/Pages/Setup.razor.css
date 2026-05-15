@@ -1,0 +1,314 @@
+﻿.cs-setup {
+    --bg: #0e0e12;
+    --surface: #16161d;
+    --border: #2a2a35;
+    --gold: #c9a84c;
+    --gold-dim: #7a6128;
+    --text: #e8e8ef;
+    --muted: #6b6b7e;
+    --green: #2d6a4f;
+    --green-fg: #74c69d;
+    --red-fg: #f07070;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Georgia', serif;
+    min-height: 100vh;
+    padding: 2.5rem 2rem;
+    box-sizing: border-box;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.cs-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.cs-logo {
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--gold);
+    letter-spacing: 2px;
+    flex-shrink: 0;
+}
+
+.cs-title {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--gold);
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.cs-subtitle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 0;
+    font-family: monospace;
+    letter-spacing: 1px;
+}
+
+/* ── Grid ───────────────────────────────────────────────────── */
+.cs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 700px) {
+    .cs-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Card ───────────────────────────────────────────────────── */
+.cs-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold-dim);
+    padding: 1.5rem;
+    box-sizing: border-box;
+}
+
+.cs-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-family: monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 1.25rem;
+}
+
+/* ── Badge ──────────────────────────────────────────────────── */
+.cs-badge {
+    margin-left: auto;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: monospace;
+}
+
+.cs-badge--ok {
+    border-color: var(--green);
+    color: var(--green-fg);
+}
+
+/* ── Lista de jogadores ─────────────────────────────────────── */
+.cs-player-list {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cs-player-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+}
+
+.cs-avatar {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--avatar-color, var(--gold));
+    color: var(--avatar-color, var(--gold));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.cs-player-name {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.cs-remove-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 6px;
+    transition: color 0.15s;
+}
+
+    .cs-remove-btn:hover {
+        color: var(--red-fg);
+    }
+
+/* ── Input ──────────────────────────────────────────────────── */
+.cs-add-row {
+    display: flex;
+    gap: 8px;
+}
+
+.cs-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+    .cs-input:focus {
+        border-color: var(--gold-dim);
+    }
+
+    .cs-input::placeholder {
+        color: var(--muted);
+    }
+
+/* ── Botões ─────────────────────────────────────────────────── */
+.cs-btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+    .cs-btn-secondary:hover:not(:disabled) {
+        border-color: var(--gold-dim);
+        color: var(--gold);
+    }
+
+    .cs-btn-secondary:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+.cs-btn-primary {
+    background: var(--gold);
+    border: none;
+    color: #0e0e12;
+    padding: 12px 28px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.15s, transform 0.1s;
+}
+
+    .cs-btn-primary:hover:not(:disabled) {
+        opacity: 0.85;
+    }
+
+    .cs-btn-primary:active:not(:disabled) {
+        transform: scale(0.98);
+    }
+
+    .cs-btn-primary:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+/* ── Grid de cargos ─────────────────────────────────────────── */
+.cs-cargo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+}
+
+.cs-cargo-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 10px;
+    font-family: monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+}
+
+    .cs-cargo-btn:hover:not(:disabled) {
+        border-color: var(--gold-dim);
+        color: var(--text);
+    }
+
+.cs-cargo-btn--on {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: #1c1a10;
+}
+
+.cs-cargo-btn--off {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.cs-cargo-check {
+    font-size: 10px;
+    min-width: 12px;
+    color: var(--gold);
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.cs-footer {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.cs-footer-info {
+    margin-right: auto;
+}
+
+.cs-ready {
+    color: var(--green-fg);
+    font-size: 0.85rem;
+    font-family: monospace;
+}
+
+/* ── Utilitários ────────────────────────────────────────────── */
+.cs-hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0.75rem 0 0;
+    font-family: monospace;
+}
+
+.cs-error {
+    font-size: 0.8rem;
+    color: var(--red-fg);
+    margin: 0.5rem 0 0;
+    font-family: monospace;
+}

@@ -41,23 +41,30 @@ namespace CapitalSyndicate.Domain.Jogadores
             ProjetosNaMesa.Add(projeto);
         }
 
-        public IReadOnlyList<Carta> FazerLayoff(Projeto projeto, Partida partida)
+        public async Task<IReadOnlyList<Carta>> FazerLayoff(Projeto projeto, Partida partida)
         {
             if (projeto.Gerente.Cargo == Cargo.GestorDeRh)
             {
-                AplicarLayoffGestorDeRh(projeto, partida);
+                return await AplicarLayoffGestorDeRh(projeto, partida);
             }
 
             List<Carta> cartasDescartadas = [.. CartasNaMao];
             CartasNaMao.Clear();
+
             return cartasDescartadas;
         }
 
-        private void AplicarLayoffGestorDeRh(Projeto projeto, Partida partida)
+        private async Task<IReadOnlyList<Carta>> AplicarLayoffGestorDeRh(Projeto projeto, Partida partida)
         {
-            int cartasAManter = partida.Entrada.EscolherNumManterCartas(this, partida, projeto.Escala);
+            int cartasAManter = await partida.Entrada.EscolherNumManterCartas(this, partida, projeto.Escala);
             int cartasADescartar = CartasNaMao.Count - cartasAManter;
-            CartasNaMao.RemoveRange(0, cartasADescartar);
+            List<Carta> cartasDescartadas = [.. CartasNaMao.Take(cartasADescartar)];
+            foreach (Carta carta in cartasDescartadas)
+            {
+                CartasNaMao.Remove(carta);
+            }
+
+            return cartasDescartadas;
         }
     }
 }

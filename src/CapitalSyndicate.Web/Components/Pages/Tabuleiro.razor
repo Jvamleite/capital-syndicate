@@ -1,0 +1,984 @@
+﻿@page "/tabuleiro"
+@layout GameLayout
+@rendermode InteractiveServer
+@using CapitalSyndicate.Application.Partidas
+@using CapitalSyndicate.Application.Turnos.Interfaces
+@using CapitalSyndicate.Domain.Cartas
+@using CapitalSyndicate.Domain.Enums
+@using CapitalSyndicate.Domain.Jogadores
+@using CapitalSyndicate.Domain.Mercados
+@using CapitalSyndicate.Domain.Partidas
+@using CapitalSyndicate.Domain.Projetos
+@using CapitalSyndicate.Domain.Tokens
+@using CapitalSyndicate.Web.Components.Layout
+@using CapitalSyndicate.Web.ViewModels
+@using CapitalSyndicate.Web.Services
+@inject PartidaEstado EstadoPartida
+@inject ITurnoService TurnoService
+@inject NavigationManager Nav
+@inject EntradaJogadorBlazor Entrada
+
+<PageTitle>Tabuleiro — Capital Syndicate</PageTitle>
+
+@if (EstadoPartida.Partida is null)
+{
+    <div class="tb-empty-state">
+        Nenhuma partida em andamento.
+        <a href="/setup">Iniciar nova partida →</a>
+    </div>
+    return;
+}
+
+@{
+    var partida = EstadoPartida.Partida;
+    var trimestre = partida.ObterTrimestreAtual();
+    var ativo = trimestre.TurnoAtual.Jogador;
+
+}
+
+<div class="tb">
+
+    @* ── TOPBAR ───────────────────────────────────────────────── *@
+    <div class="tb-topbar">
+        <span class="tb-logo">CS</span>
+        <span class="tb-pill tb-pill--gold">
+            TRIMESTRE @trimestre.Numero / @partida.TotalTrimestres
+        </span>
+        <span class="tb-pill">
+            CRISES:
+            @for (int i = 0; i < 3; i++)
+            {
+                <span class="tb-crisis-dot @(i < trimestre.CrisesReveladas ? "tb-crisis-dot--on" : "")"></span>
+            }
+        </span>
+        <span class="tb-pill tb-pill--gold">VEZ DE @ativo.Nome.ToUpper()</span>
+        @if (trimestre.Encerrado)
+        {
+            <span class="tb-pill tb-pill--warn">TRIMESTRE ENCERRADO</span>
+        }
+    </div>
+
+    @if (partida.TrilhaGlobal is not null)
+    {
+        <div class="tb-global">
+
+            <div class="tb-global-header">
+
+                <span class="tb-global-title">
+                    TRILHA GLOBAL
+                </span>
+
+                <span class="tb-global-subtitle">
+                    Expansão Internacional
+                </span>
+
+            </div>
+
+            <div class="tb-global-track">
+
+                @for (int i = 0; i < partida.TrilhaGlobal.Patamares.Count; i++)
+                {
+                    var idx = i;
+
+                    var jogadoresAqui = partida.TrilhaGlobal.Posicoes
+                    .Where(p => p.Value == idx)
+                    .Select(p => p.Key)
+                    .ToList();
+
+                    bool memorando =
+                    partida.TrilhaGlobal.Patamares[idx];
+
+                    <div class="tb-global-slot @(memorando ? "tb-global-slot--memo" : "")">
+
+                        <span class="tb-global-index">
+                            @(idx + 1)
+                        </span>
+
+                        @if (memorando)
+                        {
+                            <span class="tb-global-memo">
+                                MEMO
+                            </span>
+                        }
+
+                        <div class="tb-global-markers">
+
+                            @foreach (var jogador in jogadoresAqui)
+                            {
+                                <div class="tb-marker"
+                                     style="background:@CorJogador(partida.Jogadores.IndexOf(jogador))"
+                                     title="@jogador.Nome">
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    }
+
+    @* ── MEIO: mercados + placar ──────────────────────────────── *@
+    <div class="tb-middle">
+
+        <div class="tb-markets">
+            @foreach (var mercado in partida.Mercados)
+            {
+                <div class="tb-market tb-market--@SetorCss(mercado)">
+                    <div class="tb-market-name tb-setor--@SetorCss(mercado)">
+                        @mercado.Nome
+                        @if (MercadoAvancado(mercado))
+                        {
+                            <span class="tb-adv">ADV</span>
+                        }
+                    </div>
+
+                    <div class="tb-track">
+                        @for (int i = 0; i < mercado.Patamares.Count; i++)
+                        {
+                            var idx = i;
+                            var patamar = mercado.Patamares[idx];
+
+                            var marcadoresAqui = partida.Jogadores
+                            .Where(j => j.PresencasDeMercado
+                            .Any(p => p.Mercado == mercado && p.IndicePatamar == idx))
+                            .ToList();
+
+                            <div class="tb-slot">
+
+                                <span class="tb-slot-req">
+                                    @patamar.Requisito
+                                </span>
+
+                                <div class="tb-slot-markers">
+                                    @foreach (var j in marcadoresAqui)
+                                    {
+                                        <div class="tb-marker"
+                                             style="background:@CorJogador(partida.Jogadores.IndexOf(j))"
+                                             title="@j.Nome">
+                                        </div>
+                                    }
+                                </div>
+
+                                <span class="tb-slot-pts">
+                                    ★@patamar.Pontos
+                                </span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* ── Placar lateral ─────────────────────────────────────── *@
+        <div class="tb-players">
+            @foreach (var jogador in partida.Jogadores)
+            {
+                var isAtivo = jogador == ativo;
+                var idx = partida.Jogadores.IndexOf(jogador);
+                <div class="tb-player-card @(isAtivo ? "tb-player-card--active" : "")"
+                     style="--player-color: @CorJogador(idx)">
+                    <div class="tb-player-name">@jogador.Nome.ToUpper()</div>
+                    <div class="tb-player-pv">@jogador.PontosVitoria</div>
+                    <div class="tb-player-pv-label">PV</div>
+                    @if (jogador.Tokens.Any())
+                    {
+                        <div class="tb-token-row">
+                            @{
+                                var esg = jogador.Tokens.OfType<TokenEsg>().Count();
+                                var aud = jogador.Tokens.OfType<TokenAuditoria>().Count();
+                                var ativos = jogador.Tokens
+                                    .OfType<TokenAtivo>()
+                                    .ToList();
+
+                                var patentes =
+                                ativos.Count(a => a.Tipo == TipoAtivo.Patente);
+
+                                var startups =
+                                ativos.Count(a => a.Tipo == TipoAtivo.Startup);
+
+                                var imoveis =
+                                ativos.Count(a => a.Tipo == TipoAtivo.Imovel);
+                            }
+                            @if (patentes > 0)
+                            {
+                                <span class="tb-token tb-token--patente">
+                                    PAT ×@patentes
+                                </span>
+                            }
+
+                            @if (startups > 0)
+                            {
+                                <span class="tb-token tb-token--startup">
+                                    STA ×@startups
+                                </span>
+                            }
+
+                            @if (imoveis > 0)
+                            {
+                                <span class="tb-token tb-token--imovel">
+                                    IMO ×@imoveis
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        <div class="tb-projects-panel">
+
+            @foreach (var jogador in partida.Jogadores)
+            {
+                <div class="tb-project-group">
+
+                    <div class="tb-project-owner">
+                        @jogador.Nome.ToUpper()
+                    </div>
+
+                    <div class="tb-project-list">
+
+                        @foreach (var projeto in jogador.ProjetosNaMesa)
+                        {
+                            <div class="tb-project-card tb-project-card--@SetorCssEnum(projeto.SetorFinal)">
+
+                                <div class="tb-project-header">
+                                    @SetorNome(projeto.SetorFinal)
+                                </div>
+
+                                <div class="tb-project-body">
+                                    @foreach (var carta in projeto.Profissionais
+                                                                .OrderByDescending(c => c == projeto.Gerente))
+                                    {
+                                        <span class="tb-project-unit @(carta == projeto.Gerente ? "tb-project-unit--gerente" : "")">
+                                            @NomeCargo(carta.Cargo)
+                                        </span>
+                                    }
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    </div>
+
+    @* ── BARALHO ROW ─────────────────────────────────────────── *@
+    <div class="tb-baralho-row">
+
+        <button class="tb-deck"
+                @onclick="ComprarDoMonte"
+                disabled="@(!PodeComprar(ativo, trimestre))">
+            <span class="tb-deck-label">Monte</span>
+            <span class="tb-deck-count">@partida.Baralho.Monte.Count</span>
+            <span class="tb-deck-label">cartas</span>
+        </button>
+
+        <div class="tb-talent">
+            <div class="tb-talent-label">
+                Mercado de Talentos
+                <span class="tb-badge">@partida.Baralho.MercadoDeTalentos.Count cartas</span>
+            </div>
+            <div class="tb-talent-cards">
+                @foreach (var carta in partida.Baralho.MercadoDeTalentos.OfType<CartaProfissional>())
+                {
+                    var c = carta;
+                    <button class="tb-card-slot"
+                            @onclick="() => ComprarDoMercado(c)"
+                            disabled="@(!PodeComprar(ativo, trimestre))">
+                        <span class="tb-card-setor tb-setor--@SetorCssEnum(c.Setor)">@SetorNome(c.Setor)</span>
+                        <span class="tb-card-cargo">@NomeCargo(c.Cargo)</span>
+                    </button>
+                }
+                @if (!partida.Baralho.MercadoDeTalentos.Any())
+                {
+                    <span class="tb-vazio">vazio</span>
+                }
+            </div>
+        </div>
+
+        <div class="tb-deck tb-deck--muted">
+            <span class="tb-deck-label">Descarte</span>
+            <span class="tb-deck-count">@partida.Baralho.Descarte.Count</span>
+            <span class="tb-deck-label">cartas</span>
+        </div>
+    </div>
+
+    @if (_escolhendoSegundoProjeto)
+    {
+        <div class="tb-warning">
+            DIRETOR DE OPERAÇÕES:
+            Execute um segundo projeto ou cancele.
+            <button class="tb-btn"
+                    @onclick="CancelarSegundoProjeto">
+                Pular Segundo Projeto
+            </button>
+        </div>
+    }
+
+
+    @* ── MÃO DO JOGADOR ATIVO ─────────────────────────────────── *@
+    <div class="tb-hand">
+        <div class="tb-hand-header">
+            <span class="tb-hand-label">
+                MÃO DE @ativo.Nome.ToUpper() — @ativo.CartasNaMao.Count / 10 CARTAS
+            </span>
+            @if (_erro is not null)
+            {
+                <span class="tb-error">@_erro</span>
+            }
+        </div>
+
+        <div class="tb-hand-cards">
+            @foreach (var carta in ativo.CartasNaMao.OfType<CartaProfissional>())
+            {
+                var c = carta;
+                <button class="tb-hand-card @(_cartasSelecionadas.Contains(c) ? "tb-hand-card--sel" : "")"
+                        @onclick="() => ToggleCarta(c)">
+                    <span class="tb-hc-setor tb-setor--@SetorCssEnum(c.Setor)">@SetorNome(c.Setor)</span>
+                    <span class="tb-hc-cargo">@NomeCargo(c.Cargo)</span>
+                    @if (c.Cargo is Cargo.Trainee or Cargo.ConsultorExterno)
+                    {
+                        <span class="tb-hc-tag">coringa</span>
+                    }
+                </button>
+            }
+            @if (!ativo.CartasNaMao.Any())
+            {
+                <span class="tb-vazio">Mão vazia.</span>
+            }
+        </div>
+
+        @* Seleção de gerente *@
+        @if (_cartasSelecionadas.Count >= 1)
+        {
+            <div class="tb-gerente-row">
+                <span class="tb-hint">Gerente:</span>
+                @foreach (var c in _cartasSelecionadas.Where(c => c.PodeSerGerente()))
+                {
+                    var cg = c;
+                    <button class="tb-gerente-btn @(_gerenteSelecionado == cg ? "tb-gerente-btn--on" : "")"
+                            @onclick="() => _gerenteSelecionado = cg">
+                        @NomeCargo(cg.Cargo) / @SetorNome(cg.Setor)
+                    </button>
+                }
+            </div>
+        }
+
+        <div class="tb-actions">
+            @if (!trimestre.Encerrado)
+            {
+                <button class="tb-btn"
+                        @onclick="ComprarDoMonte"
+                        disabled="@(!PodeComprar(ativo, trimestre))">
+                    Comprar do Monte
+                </button>
+
+                <button class="tb-btn tb-btn--primary"
+                        @onclick="ExecutarProjeto"
+                        disabled="@(!PodeExecutar())">
+                    ▶ Executar Projeto (@_cartasSelecionadas.Count cartas)
+                </button>
+            }
+            else if (!partida.Encerrada)
+            {
+                <button class="tb-btn tb-btn--primary" @onclick="AvancarTrimestre">
+                    Avançar Trimestre →
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (_criseAtual is not null)
+    {
+        <div class="tb-overlay">
+
+            <div class="tb-crisis-modal">
+
+                <div class="tb-crisis-title">
+                    @_criseAtual.Nome
+                </div>
+
+                <div class="tb-crisis-flavor">
+                    @_criseAtual.Flavor
+                </div>
+
+                <div class="tb-crisis-effect">
+                    @_criseAtual.Efeito
+                </div>
+
+                <button class="tb-btn tb-btn--primary"
+                        @onclick="FecharCrise">
+                    Continuar
+                </button>
+
+            </div>
+
+        </div>
+    }
+
+    @if (_modalManterCartas)
+    {
+        <div class="tb-overlay">
+
+            <div class="tb-crisis-modal">
+
+                <div class="tb-crisis-title">
+                    GESTOR DE RH
+                </div>
+
+                <div class="tb-crisis-flavor">
+                    Quantas cartas deseja manter?
+                </div>
+
+                <div class="tb-actions">
+
+                    @for (int i = 0; i <= _escalaProjeto; i++)
+                    {
+                        var qtd = i;
+
+                        <button class="tb-btn"
+                                @onclick="() => ConfirmarManterCartas(qtd)">
+                            @qtd
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+    @if (_modalMercadoExpansao)
+    {
+        <div class="tb-overlay">
+
+            <div class="tb-crisis-modal">
+
+                <div class="tb-crisis-title">
+                    DIRETOR DE EXPANSÃO
+                </div>
+
+                <div class="tb-crisis-flavor">
+                    Escolha um mercado para expandir.
+                </div>
+
+                <div class="tb-market-choice-list">
+
+                    @foreach (var mercado in _mercadosExpansao)
+                    {
+                        var m = mercado;
+
+                        <button class="tb-btn"
+                                @onclick="() => ConfirmarMercadoExpansao(m)">
+                            @mercado.Nome
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+    @if (_modalMemorando)
+    {
+        <div class="tb-overlay">
+
+            <div class="tb-crisis-modal">
+
+                <div class="tb-crisis-title">
+                    MEMORANDO DE ENTENDIMENTO
+                </div>
+
+                <div class="tb-crisis-flavor">
+                    Escolha um mercado para avançar
+                    ignorando requisitos.
+                </div>
+
+                <div class="tb-market-choice-list">
+
+                    @foreach (var presenca in _presencasMemorando)
+                    {
+                        var p = presenca;
+
+                        <button class="tb-btn"
+                                @onclick="() => ConfirmarPresencaMemorando(p)">
+                            @presenca.Mercado.Nome
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+    @if (_modalAtivoCorporativo)
+    {
+        <div class="tb-overlay">
+
+            <div class="tb-crisis-modal">
+
+                <div class="tb-crisis-title">
+                    GESTOR DE PORTFÓLIO
+                </div>
+
+                <div class="tb-crisis-flavor">
+                    Escolha um Ativo Corporativo.
+                </div>
+
+                <div class="tb-market-choice-list">
+
+                    <button class="tb-btn"
+                            @onclick="() =>
+                            ConfirmarAtivoCorporativo(
+                                TipoAtivo.Patente)">
+                    PATENTE
+                </button>
+
+                    <button class="tb-btn"
+                            @onclick="() =>
+                                                    ConfirmarAtivoCorporativo(
+                                                        TipoAtivo.Startup)">
+                    STARTUP
+                </button>
+
+                    <button class="tb-btn"
+                            @onclick="() =>
+                                                    ConfirmarAtivoCorporativo(
+                                                        TipoAtivo.Imovel)">
+                    IMÓVEL
+                </button>
+
+                </div>
+
+            </div>
+
+        </div>
+        }
+
+</div>
+
+
+@code {
+    private HashSet<CartaProfissional> _cartasSelecionadas = [];
+    private CriseViewModel? _criseAtual;
+    private CartaProfissional? _gerenteSelecionado;
+    private string? _erro;
+    private bool _modalManterCartas;
+    private int _escalaProjeto;
+    private TaskCompletionSource<int>? _manterCartasTcs;
+    private bool _modalMercadoExpansao;
+    private List<Mercado> _mercadosExpansao = [];
+    private TaskCompletionSource<Mercado>? _mercadoExpansaoTcs;
+    private bool _modalMemorando;
+    private List<Presenca> _presencasMemorando = [];
+    private TaskCompletionSource<Presenca>? _memorandoTcs;
+    private bool _modalAtivoCorporativo;
+    private TaskCompletionSource<TipoAtivo>?_ativoCorporativoTcs;
+    private bool _escolhendoSegundoProjeto;
+    private TaskCompletionSource<Projeto?>?_segundoProjetoTcs;
+
+    private static readonly string[] _cores =
+        ["#c9a84c", "#4ca8c9", "#a84cc9", "#4cc97a", "#c94c4c"];
+
+    private string CorJogador(int i) => _cores[i % _cores.Length];
+
+    private void ComprarDoMonte()
+    {
+        _erro = null;
+        try
+        {
+            var cartasCompradas = TurnoService.ComprarCartas(1, EstadoPartida.Partida!);
+            var cartaCrise = cartasCompradas.Where(x => x is CartaCrise);
+            if (cartaCrise.Any())
+            {
+                var crise = (CartaCrise) cartaCrise.First();
+                _criseAtual = CriarViewModelCrise(crise);
+            }
+
+            LimparSelecao();
+        }
+        catch (Exception ex) { _erro = ex.Message; }
+    }
+
+    private void ComprarDoMercado(CartaProfissional carta)
+    {
+        _erro = null;
+        try
+        {
+            var partida = EstadoPartida.Partida!;
+            var trimestre = partida.ObterTrimestreAtual();
+            var jogador = trimestre.TurnoAtual.Jogador;
+
+            var comprada = partida.Baralho.ComprarCartaDoMercadoDeTalentos(carta.Id);
+            jogador.ComprarCartas([comprada]);
+            trimestre.TurnoAtual.Encerrar();
+            trimestre.AvancarTurno();
+            LimparSelecao();
+        }
+        catch (Exception ex) { _erro = ex.Message; }
+    }
+
+    private async Task ExecutarProjeto()
+    {
+        _erro = null;
+        if (_gerenteSelecionado is null) { _erro = "Escolha um gerente para o projeto."; return; }
+
+        try
+        {
+            if (_escolhendoSegundoProjeto)
+            {
+                if (_gerenteSelecionado is null)
+                {
+                    _erro = "Escolha um gerente.";
+                    return;
+                }
+
+                Projeto segundoProjeto =
+                    Projeto.Criar(
+                        [.. _cartasSelecionadas],
+                        _gerenteSelecionado);
+
+                _escolhendoSegundoProjeto = false;
+
+                _segundoProjetoTcs!
+                    .SetResult(segundoProjeto);
+
+                LimparSelecao();
+
+                return;
+            }
+
+            var projeto = Projeto.Criar([.. _cartasSelecionadas], _gerenteSelecionado);
+
+            var cartasDescartadas = await TurnoService.ExecutarProjeto(projeto, EstadoPartida.Partida!);
+            
+            EstadoPartida.Partida!.Baralho.AdicionarCartasNoMercadoDeTalentos([.. cartasDescartadas]);
+
+            LimparSelecao();
+        }
+        catch (Exception ex) { _erro = ex.Message; }
+    }
+
+    private void AvancarTrimestre()
+    {
+        _erro = null;
+        try
+        {
+            var partida = EstadoPartida.Partida!;
+            var trimestre = partida.ObterTrimestreAtual();
+
+            var resultado = PartidaService.AvancarTrimestre(
+                partida,
+                partida.JogadorQueRevelouUltimaCrise ?? partida.Jogadores[0]);
+
+            if (resultado.JogoEncerrado)
+                Nav.NavigateTo("/resultado");
+
+            LimparSelecao();
+        }
+        catch (Exception ex) { _erro = ex.Message; }
+    }
+
+    private void ToggleCarta(CartaProfissional carta)
+    {
+        _erro = null;
+        if (_cartasSelecionadas.Contains(carta))
+        {
+            _cartasSelecionadas.Remove(carta);
+            if (_gerenteSelecionado == carta) _gerenteSelecionado = null;
+        }
+        else
+        {
+            _cartasSelecionadas.Add(carta);
+        }
+    }
+
+    private void LimparSelecao()
+    {
+        _cartasSelecionadas.Clear();
+        _gerenteSelecionado = null;
+    }
+
+    private bool PodeComprar(Jogador ativo, Trimestre trimestre) =>
+        !trimestre.Encerrado &&
+        !trimestre.TurnoAtual.Encerrado &&
+        ativo.CartasNaMao.Count < 10;
+
+    private bool PodeExecutar() =>
+        _cartasSelecionadas.Count >= 1 &&
+        _gerenteSelecionado is not null &&
+        EstadoPartida.Partida is not null &&
+        !EstadoPartida.Partida.ObterTrimestreAtual().Encerrado;
+
+    private CriseViewModel CriarViewModelCrise(CartaCrise crise)
+    {
+        return crise switch
+        {
+            CriseCrashDaBolsa => new()
+            {
+                Nome = crise.Descricao(),
+
+                Flavor =
+                    "Uma onda de vendas em pânico destruiu bilhões em valor de mercado em poucas horas.",
+
+                Efeito =
+                    "Mercados financeiros entram em colapso e investidores recuam."
+            },
+
+            CriseRecessaoEconomica => new()
+            {
+                Nome = crise.Descricao(),
+
+                Flavor =
+                    "O consumo desacelerou drasticamente e empresas começaram demissões em massa.",
+
+                Efeito =
+                    "Projetos mais caros se tornam difíceis de sustentar."
+            },
+
+            CriseRumoresDeMercado => new()
+            {
+                Nome = crise.Descricao(),
+
+                Flavor =
+                    "Informações desencontradas e especulações criaram instabilidade nos setores estratégicos.",
+
+                Efeito =
+                    "A confiança do mercado foi abalada."
+            },
+
+            _ => new()
+            {
+                Nome = "CRISE",
+                Flavor = "",
+                Efeito = ""
+            }
+        };
+    }
+
+    private void FecharCrise()
+    {
+        _criseAtual = null;
+    }
+
+    private async Task<int> EscolherNumManterCartasAsync(
+        Jogador jogador,
+        Partida partida,
+        int escalaProjeto)
+    {
+        int cartasRestantes =
+            jogador.CartasNaMao.Count - escalaProjeto;
+
+        if (cartasRestantes <= 0)
+        {
+            return 0;
+        }
+
+        _escalaProjeto =
+            Math.Min(escalaProjeto, cartasRestantes);
+
+        _modalManterCartas = true;
+
+        _manterCartasTcs = new();
+
+        StateHasChanged();
+
+        return await _manterCartasTcs.Task;
+    }
+
+    private void ConfirmarManterCartas(int quantidade)
+    {
+        _modalManterCartas = false;
+
+        _manterCartasTcs?.SetResult(quantidade);
+    }
+
+    private async Task<Mercado> EscolherMercadoExpansaoAsync(
+        Jogador jogador,
+        List<Mercado> mercadosValidos)
+    {
+        _mercadosExpansao =
+            mercadosValidos;
+
+        _modalMercadoExpansao = true;
+
+        _mercadoExpansaoTcs = new();
+
+        StateHasChanged();
+
+        return await _mercadoExpansaoTcs.Task;
+    }
+
+    private void ConfirmarMercadoExpansao(
+        Mercado mercado)
+    {
+        _modalMercadoExpansao = false;
+
+        _mercadoExpansaoTcs?.SetResult(mercado);
+    }
+
+    private async Task<Presenca>
+        EscolherPresencaParaMemorandoAsync(
+        Jogador jogador,
+        List<Presenca> presencasDisponiveis)
+    {
+        _presencasMemorando =
+            presencasDisponiveis;
+
+        _modalMemorando = true;
+
+        _memorandoTcs = new();
+
+        StateHasChanged();
+
+        return await _memorandoTcs.Task;
+    }
+
+    private async Task<TipoAtivo>
+        EscolherTipoAtivoCorporativoAsync(
+        Jogador jogador)
+    {
+        _modalAtivoCorporativo = true;
+
+        _ativoCorporativoTcs = new();
+
+        StateHasChanged();
+
+        return await _ativoCorporativoTcs.Task;
+    }
+
+    private void ConfirmarPresencaMemorando(
+        Presenca presenca)
+    {
+        _modalMemorando = false;
+
+        _memorandoTcs?.SetResult(presenca);
+    }
+
+    private void ConfirmarAtivoCorporativo(
+        TipoAtivo tipo)
+    {
+        _modalAtivoCorporativo = false;
+
+        _ativoCorporativoTcs?.SetResult(tipo);
+    }
+
+    private Task<Projeto?> EscolherSegundoProjetoAsync(
+        Jogador jogador,
+        Partida partida)
+    {
+        LimparSelecao();
+
+        _escolhendoSegundoProjeto = true;
+
+        _segundoProjetoTcs =
+            new TaskCompletionSource<Projeto?>();
+
+        InvokeAsync(StateHasChanged);
+
+        return _segundoProjetoTcs.Task;
+    }
+
+    private void CancelarSegundoProjeto()
+    {
+        _escolhendoSegundoProjeto = false;
+
+        _segundoProjetoTcs!
+            .SetResult(null);
+
+        LimparSelecao();
+    }
+
+    protected override void OnInitialized()
+    {
+        Entrada.OnEscolherNumManterCartas =
+            EscolherNumManterCartasAsync;
+
+        Entrada.OnEscolherMercadoExpansao =
+            EscolherMercadoExpansaoAsync;
+
+        Entrada.OnEscolherPresencaParaMemorando =
+            EscolherPresencaParaMemorandoAsync;
+
+        Entrada.OnEscolherTipoAtivoCorporativo =
+            EscolherTipoAtivoCorporativoAsync;
+
+        Entrada.OnEscolherSegundoProjeto = 
+            EscolherSegundoProjetoAsync;
+    }
+
+    // ── Helpers de exibição ───────────────────────────────────
+
+    private static string SetorCss(Mercado m) => m switch
+    {
+        Inovacao => "inovacao",
+        Tecnologia => "tecnologia",
+        Logistica => "logistica",
+        Infraestrutura => "infra",
+        EstrategiasCorporativas => "estrategia",
+        MercadoFinanceiro => "financeiro",
+        _ => "default"
+    };
+
+    private static string SetorCssEnum(Setor s) => s switch
+    {
+        Setor.Inovacao => "inovacao",
+        Setor.Tecnologia => "tecnologia",
+        Setor.Logistica => "logistica",
+        Setor.Infraestrutura => "infra",
+        Setor.EstrategiasCorporativas => "estrategia",
+        Setor.MercadoFinanceiro => "financeiro",
+        _ => "default"
+    };
+
+    private static string SetorNome(Setor s) => s switch
+    {
+        Setor.Inovacao => "Inovação",
+        Setor.Tecnologia => "Tecnologia",
+        Setor.Logistica => "Logística",
+        Setor.Infraestrutura => "Infraestrutura",
+        Setor.EstrategiasCorporativas => "Estratégias Corporativas",
+        Setor.MercadoFinanceiro => "Financeiro",
+        _ => s.ToString()
+    };
+
+    private static string NomeCargo(Cargo c) => c switch
+    {
+        Cargo.Facilitador => "Facilitador",
+        Cargo.DiretorDeComunicacao => "Dir. Comunicação",
+        Cargo.Investidor => "Investidor",
+        Cargo.GestorDeRh => "Gestor RH",
+        Cargo.DiretorDeExpansao => "Dir. Expansão",
+        Cargo.DiretorDeOperacoes => "Dir. Operações",
+        Cargo.EspecialistaEsg => "Esp. ESG",
+        Cargo.GestorDePortifolio => "Gest. Portfólio",
+        Cargo.Auditor => "Auditor",
+        Cargo.NegociadorInternacional => "Neg. Internacional",
+        Cargo.Trainee => "Trainee",
+        Cargo.ConsultorExterno => "Consultor Ext.",
+        _ => c.ToString()
+    };
+
+    private static bool MercadoAvancado(Mercado m) => m switch
+    {
+        Inovacao i => i.InjecaoDeRecursos,
+        Tecnologia t => t.ApenasLiderPontua,
+        Logistica l => l.ExpansaoParalela,
+        Infraestrutura inf => inf.Monopolio,
+        EstrategiasCorporativas e => e.OperacoesAfterHours,
+        MercadoFinanceiro mf => mf.CashOutDisponivel,
+        _ => false
+    };
+}

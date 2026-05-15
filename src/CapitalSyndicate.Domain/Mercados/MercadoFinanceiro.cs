@@ -3,7 +3,7 @@ using CapitalSyndicate.Domain.Partidas;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
-    internal class MercadoFinanceiro : Mercado
+    public class MercadoFinanceiro : Mercado
     {
         public bool CashOutDisponivel { get; }
 
@@ -38,7 +38,7 @@ namespace CapitalSyndicate.Domain.Mercados
             return patamares;
         }
 
-        public override void AoAvancar(Jogador jogador, Partida partida)
+        public override async void AoAvancar(Jogador jogador, Partida partida)
         {
             if (!CashOutDisponivel)
             {
@@ -48,7 +48,7 @@ namespace CapitalSyndicate.Domain.Mercados
             Presenca presenca = jogador.PresencasDeMercado.First(p => p.Mercado == this);
             int pontosOferecidos = Patamares[presenca.IndicePatamar].Pontos;
 
-            if (partida.Entrada.ConfirmarCashOut(jogador, pontosOferecidos))
+            if (await partida.Entrada.ConfirmarCashOut(jogador, pontosOferecidos))
             {
                 jogador.PontosVitoria += pontosOferecidos;
                 presenca.Resetar();

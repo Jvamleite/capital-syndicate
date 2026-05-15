@@ -8,9 +8,9 @@ namespace CapitalSyndicate.Domain.Cartas.Habilidades
 {
     internal class HabilidadeDiretorDeOperacoes : IHabilidadeLider
     {
-        void IHabilidadeLider.AposAvanco(Jogador ativo, Partida partida, Projeto projeto)
+        async Task IHabilidadeLider.AposAvanco(Jogador ativo, Partida partida, Projeto projeto)
         {
-            Projeto? segundoProjeto = partida.Entrada.EscolherSegundoProjeto(ativo, partida);
+            Projeto? segundoProjeto = await partida.Entrada.EscolherSegundoProjeto(ativo, partida);
 
             if (segundoProjeto is null)
             {
@@ -23,9 +23,9 @@ namespace CapitalSyndicate.Domain.Cartas.Habilidades
             Mercado mercado = partida.ObterMercado(segundoProjeto.SetorFinal);
             if (mercado.PodeAvancar(ativo, segundoProjeto))
             {
-                mercado.AvancarPresenca(ativo, partida);
+                await mercado.AvancarPresenca(ativo, partida);
 
-                segundoProjeto.Gerente.Cargo.ObterHabilidade().AposAvanco(ativo, partida, segundoProjeto);
+                await segundoProjeto.Gerente.Cargo.ObterHabilidade().AposAvanco(ativo, partida, segundoProjeto);
             }
         }
     }

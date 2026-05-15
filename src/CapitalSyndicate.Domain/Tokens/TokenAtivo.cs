@@ -2,11 +2,11 @@
 
 namespace CapitalSyndicate.Domain.Tokens
 {
-    internal class TokenAtivo : Token
+    public class TokenAtivo : Token
     {
         public TipoAtivo Tipo { get; set; }
 
-        public static int PontuarConjunto(List<TokenAtivo> ativos)
+        public static int PontuarPortfolio(List<TokenAtivo> ativos)
         {
             int total = 0;
 

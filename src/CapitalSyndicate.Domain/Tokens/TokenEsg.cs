@@ -1,6 +1,6 @@
 ﻿namespace CapitalSyndicate.Domain.Tokens
 {
-    internal class TokenEsg : Token
+    public class TokenEsg : Token
     {
         public TokenEsg()
         {

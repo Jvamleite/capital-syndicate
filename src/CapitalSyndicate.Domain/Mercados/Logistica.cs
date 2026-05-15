@@ -4,7 +4,7 @@ using CapitalSyndicate.Domain.Projetos;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
-    internal class Logistica : Mercado
+    public class Logistica : Mercado
     {
         public bool ExpansaoParalela { get; }
         private readonly Dictionary<Jogador, Presenca> SegundaPresenca = [];
@@ -65,17 +65,17 @@ namespace CapitalSyndicate.Domain.Mercados
                 || PodeAvancarPresenca(segundo, projeto.Escala);
         }
 
-        public override void AvancarPresenca(Jogador jogador, Partida partida)
+        public override async Task AvancarPresenca(Jogador jogador, Partida partida)
         {
             if (!ExpansaoParalela)
             {
-                base.AvancarPresenca(jogador, partida);
+                await base.AvancarPresenca(jogador, partida);
                 return;
             }
 
             Presenca primeiro = jogador.PresencasDeMercado.First(p => p.Mercado == this);
             Presenca segundo = ObterSegundoMarcador(jogador);
-            Presenca escolhido = partida.Entrada.EscolherMarcadorLogistica(jogador, primeiro, segundo);
+            Presenca escolhido = await partida.Entrada.EscolherMarcadorLogistica(jogador, primeiro, segundo);
 
             if (escolhido.IndicePatamar >= Patamares.Count - 1)
             {
