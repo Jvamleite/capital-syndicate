@@ -3,7 +3,7 @@ using CapitalSyndicate.Domain.Partidas;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
-    internal class Tecnologia : Mercado
+    public class Tecnologia : Mercado
     {
         public bool ApenasLiderPontua { get; }
 

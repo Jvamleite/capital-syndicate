@@ -1,0 +1,259 @@
+@page "/setup"
+@layout GameLayout
+@rendermode InteractiveServer
+@using CapitalSyndicate.Application.Partidas
+@using CapitalSyndicate.Domain.Cartas
+@using CapitalSyndicate.Domain.Enums
+@using CapitalSyndicate.Domain.Jogadores
+@using CapitalSyndicate.Domain.Mercados
+@using CapitalSyndicate.Domain.Partidas
+@using CapitalSyndicate.Web.Components.Layout
+@using CapitalSyndicate.Web.Services
+@inject PartidaEstado EstadoPartida
+@inject EntradaJogadorBlazor Entrada
+@inject NavigationManager Nav
+
+<PageTitle>Nova Partida — Capital Syndicate</PageTitle>
+
+<div class="cs-setup">
+
+    <header class="cs-header">
+        <div class="cs-logo">CS</div>
+        <div>
+            <h1 class="cs-title">Capital Syndicate</h1>
+            <p class="cs-subtitle">Configure a nova partida</p>
+        </div>
+    </header>
+
+    <div class="cs-grid">
+
+        <section class="cs-card">
+            <h2 class="cs-card-title">
+                <span>👥</span>
+                Jogadores
+                <span class="cs-badge">@_jogadores.Count / 5</span>
+            </h2>
+
+            <ul class="cs-player-list">
+                @foreach (var (jogador, i) in _jogadores.Select((j, i) => (j, i)))
+                {
+                    <li class="cs-player-item">
+                        <div class="cs-avatar" style="--avatar-color: @AvatarColor(i)">
+                            @jogador[0]
+                        </div>
+                        <span class="cs-player-name">@jogador</span>
+                        <button class="cs-remove-btn" @onclick="() => RemoverJogador(jogador)">✕</button>
+                    </li>
+                }
+            </ul>
+
+            @if (_jogadores.Count < 5)
+            {
+                <div class="cs-add-row">
+                    <input class="cs-input"
+                           type="text"
+                           placeholder="Nome do jogador..."
+                           @bind="_novoNome"
+                           @bind:event="oninput"
+                           @onkeydown="TratarEnter" />
+                    <button class="cs-btn-secondary"
+                            @onclick="AdicionarJogador"
+                            disabled="@string.IsNullOrWhiteSpace(_novoNome)">
+                        + Adicionar
+                    </button>
+                </div>
+            }
+
+            @if (_erroJogador is not null)
+            {
+                <p class="cs-error">@_erroJogador</p>
+            }
+
+            <p class="cs-hint">
+                @(_jogadores.Count switch {
+                    0 => "Adicione entre 2 e 5 jogadores para começar.",
+                    1 => "Adicione pelo menos mais 1 jogador.",
+                    _ => $"Partida com {(_jogadores.Count <= 3 ? "2" : "3")} trimestres."
+                })
+            </p>
+        </section>
+
+        <section class="cs-card">
+            <h2 class="cs-card-title">
+                <span>🎴</span>
+                Cargos no Baralho
+                <span class="cs-badge @(_cargosSelecionados.Count == 6 ? "cs-badge--ok" : "")">
+                    @_cargosSelecionados.Count / 6
+                </span>
+            </h2>
+
+            <p class="cs-hint" style="margin: 0 0 1rem;">
+                Selecione exatamente 6 cargos.
+            </p>
+
+            <div class="cs-cargo-grid">
+                @foreach (Cargo cargo in Enum.GetValues<Cargo>())
+                {
+                    var selecionado = _cargosSelecionados.Contains(cargo);
+                    var bloqueado   = !selecionado && _cargosSelecionados.Count >= 6;
+
+                    <button class="cs-cargo-btn @(selecionado ? "cs-cargo-btn--on" : "") @(bloqueado ? "cs-cargo-btn--off" : "")"
+                            @onclick="() => ToggleCargo(cargo)"
+                            disabled="@bloqueado">
+                        <span class="cs-cargo-check">@(selecionado ? "✓" : "")</span>
+                        @NomeExibicao(cargo)
+                    </button>
+                }
+            </div>
+        </section>
+    </div>
+
+    <footer class="cs-footer">
+        <div class="cs-footer-info">
+            @if (PodeIniciar())
+            {
+                <span class="cs-ready">✔ Tudo pronto</span>
+            }
+            else
+            {
+                <span class="cs-hint" style="margin:0">@MensagemFaltando()</span>
+            }
+        </div>
+
+        @if (_erroInicio is not null)
+        {
+            <p class="cs-error" style="margin:0">@_erroInicio</p>
+        }
+
+        <button class="cs-btn-primary"
+                @onclick="IniciarPartida"
+                disabled="@(!PodeIniciar())">
+            ▶ Iniciar Partida
+        </button>
+    </footer>
+
+</div>
+
+@code {
+    private List<string>   _jogadores          = [];
+    private HashSet<Cargo> _cargosSelecionados = [];
+    private string         _novoNome           = string.Empty;
+    private string?        _erroJogador;
+    private string?        _erroInicio;
+
+    private static readonly string[] _cores =
+        ["#c9a84c", "#4ca8c9", "#a84cc9", "#4cc97a", "#c94c4c"];
+
+    private string AvatarColor(int i) => _cores[i % _cores.Length];
+
+    private static string NomeExibicao(Cargo c) => c switch
+    {
+        Cargo.Facilitador             => "Facilitador",
+        Cargo.DiretorDeComunicacao    => "Dir. Comunicação",
+        Cargo.Investidor              => "Investidor",
+        Cargo.GestorDeRh              => "Gestor de RH",
+        Cargo.DiretorDeExpansao       => "Dir. Expansão",
+        Cargo.DiretorDeOperacoes      => "Dir. Operações",
+        Cargo.EspecialistaEsg         => "Esp. ESG",
+        Cargo.GestorDePortifolio      => "Gest. Portfólio",
+        Cargo.Auditor                 => "Auditor",
+        Cargo.NegociadorInternacional => "Neg. Internacional",
+        Cargo.Trainee                 => "Trainee",
+        Cargo.ConsultorExterno        => "Consultor Externo",
+        _                             => c.ToString()
+    };
+
+    private string MensagemFaltando()
+    {
+        var msgs = new List<string>();
+        if (_jogadores.Count < 2)          msgs.Add($"faltam {2 - _jogadores.Count} jogador(es)");
+        if (_cargosSelecionados.Count < 6) msgs.Add($"faltam {6 - _cargosSelecionados.Count} cargo(s)");
+        return "⚠ " + string.Join(" e ", msgs) + ".";
+    }
+
+    private void AdicionarJogador()
+    {
+        _erroJogador = null;
+        var nome = _novoNome.Trim();
+        if (string.IsNullOrEmpty(nome)) { _erroJogador = "Digite um nome."; return; }
+        if (_jogadores.Contains(nome))  { _erroJogador = "Nome já adicionado."; return; }
+        _jogadores.Add(nome);
+        _novoNome = string.Empty;
+    }
+
+    private void RemoverJogador(string nome) => _jogadores.Remove(nome);
+
+    private void TratarEnter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AdicionarJogador();
+    }
+
+    private void ToggleCargo(Cargo cargo)
+    {
+        if (_cargosSelecionados.Contains(cargo))
+            _cargosSelecionados.Remove(cargo);
+        else if (_cargosSelecionados.Count < 6)
+            _cargosSelecionados.Add(cargo);
+    }
+
+    private bool PodeIniciar() =>
+        _jogadores.Count >= 2 && _cargosSelecionados.Count == 6;
+
+    private void IniciarPartida()
+    {
+        _erroInicio = null;
+        if (!PodeIniciar()) { _erroInicio = "Complete a configuração antes de iniciar."; return; }
+
+        try
+        {
+            var jogadores = _jogadores.Select(n => new Jogador(n)).ToList();
+
+            var mercados = new List<Mercado>
+            {
+                new Inovacao(avancado: false),
+                new Tecnologia(avancado: false),
+                new Logistica(avancado: false),
+                new Infraestrutura(avancado: false),
+                new EstrategiasCorporativas(avancado: false),
+                new MercadoFinanceiro(avancado: false),
+            };
+
+            var cartasNormais = new List<Carta>();
+            foreach (var setor in Enum.GetValues<Setor>())
+                foreach (var cargo in _cargosSelecionados)
+                    for (int i = 0; i < 4; i++)
+                        cartasNormais.Add(new CartaProfissional
+                        {
+                            Id    = Guid.NewGuid(),
+                            Setor = setor,
+                            Cargo = cargo
+                        });
+
+            var cartasCrise = new List<CartaCrise>
+            {
+                new CriseRumoresDeMercado(),
+                new CriseRecessaoEconomica(),
+                new CriseCrashDaBolsa(),
+            };
+
+            bool comTrilhaGlobal = _cargosSelecionados.Contains(Cargo.NegociadorInternacional);
+
+            var partida = new Partida(
+                jogadores,
+                mercados,
+                cartasNormais,
+                cartasCrise,
+                Entrada,
+                comTrilhaGlobal);
+
+            PartidaService.Iniciar(partida);
+
+            EstadoPartida.Iniciar(partida);
+            Nav.NavigateTo("/tabuleiro");
+        }
+        catch (Exception ex)
+        {
+            _erroInicio = $"Erro ao iniciar: {ex.Message}";
+        }
+    }
+}

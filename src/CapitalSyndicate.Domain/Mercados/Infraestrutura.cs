@@ -3,7 +3,7 @@ using CapitalSyndicate.Domain.Partidas;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
-    internal class Infraestrutura : Mercado
+    public class Infraestrutura : Mercado
     {
         public bool Monopolio { get; }
 

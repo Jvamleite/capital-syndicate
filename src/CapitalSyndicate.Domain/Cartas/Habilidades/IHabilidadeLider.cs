@@ -8,10 +8,12 @@ namespace CapitalSyndicate.Domain.Cartas.Habilidades
     {
         int ModificarEscalaParaAvanco(int escala) => escala;
 
-        void AposAvanco(Jogador ativo, Partida partida, Projeto projeto) { }
+        Task AposAvanco(Jogador ativo, Partida partida, Projeto projeto) { return Task.CompletedTask; }
 
         void AoFimDoTrimestre(Jogador ativo, Projeto projeto) { }
 
         void AoFimDoJogo(Jogador ativo, Partida partida) { }
+
+        void AposLayoff(Jogador ativo, Partida partida, Projeto projeto) { }
     }
 }

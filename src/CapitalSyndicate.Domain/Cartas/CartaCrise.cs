@@ -5,6 +5,6 @@ namespace CapitalSyndicate.Domain.Cartas
 {
     public abstract class CartaCrise : Carta
     {
-        public abstract void Resolver(Jogador jogadorQueRevelou, Partida partida);
+        public abstract Task Resolver(Jogador jogadorQueRevelou, Partida partida);
     }
 }

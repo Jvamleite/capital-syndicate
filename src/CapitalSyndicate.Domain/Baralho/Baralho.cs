@@ -50,43 +50,78 @@ namespace CapitalSyndicate.Domain.Baralhos
             return mercadoDeTalentos;
         }
 
-        private static List<Carta> CriarMonte(List<Carta> normais, List<Carta> crises)
+        private static List<Carta> CriarMonte(
+            List<Carta> normais,
+            List<Carta> crises)
         {
             List<Carta> embaralhadas = Embaralhar(normais);
 
             int metade = embaralhadas.Count / 2;
-            List<Carta> parteSuperior = [.. embaralhadas.Take(metade)];
-            List<Carta> parteInferior = [.. embaralhadas.Skip(metade)];
 
-            List<Carta> parteInferiorComCrises = DistribuirCrisesNasPilhas(parteInferior, crises);
+            List<Carta> parteSegura =
+            [
+                .. embaralhadas.Take(metade)
+            ];
 
-            return [.. parteSuperior, .. parteInferiorComCrises];
+            List<Carta> parteComCrises =
+            [
+                .. embaralhadas.Skip(metade)
+            ];
+
+            List<Carta> secaoComCrises =
+                DistribuirCrisesNasPilhas(
+                    parteComCrises,
+                    crises);
+
+            return
+            [
+                .. secaoComCrises,
+                .. parteSegura
+            ];
         }
 
-        private static List<Carta> DistribuirCrisesNasPilhas(List<Carta> cartas, List<Carta> crises)
+        private static List<Carta> DistribuirCrisesNasPilhas(
+            List<Carta> cartas,
+            List<Carta> crises)
         {
-            List<List<Carta>> pilhas = DividirEmPilhas(cartas, NumeroDeCrises);
+            List<List<Carta>> pilhas =
+                DividirEmPilhas(cartas, crises.Count);
 
             for (int i = 0; i < pilhas.Count; i++)
             {
-                pilhas[i].Add(crises[i]);
-                pilhas[i] = Embaralhar(pilhas[i]);
+                int posicao =
+                    Random.Next(pilhas[i].Count + 1);
+
+                pilhas[i].Insert(posicao, crises[i]);
             }
 
-            return [.. pilhas.SelectMany(p => p)];
+            return
+            [
+                .. pilhas.SelectMany(p => p)
+            ];
         }
 
-        private static List<List<Carta>> DividirEmPilhas(List<Carta> cartas, int numeroDePilhas)
+        private static List<List<Carta>> DividirEmPilhas(
+            List<Carta> cartas,
+            int numeroDePilhas)
         {
             int tamanhoBase = cartas.Count / numeroDePilhas;
             int resto = cartas.Count % numeroDePilhas;
+
             List<List<Carta>> pilhas = [];
+
             int index = 0;
 
             for (int i = 0; i < numeroDePilhas; i++)
             {
-                int tamanho = tamanhoBase + (i < resto ? 1 : 0);
-                pilhas.Add([.. cartas.Skip(index).Take(tamanho)]);
+                int tamanho =
+                    tamanhoBase + (i < resto ? 1 : 0);
+
+                pilhas.Add(
+                [
+                    .. cartas.Skip(index).Take(tamanho)
+                ]);
+
                 index += tamanho;
             }
 
@@ -97,10 +132,19 @@ namespace CapitalSyndicate.Domain.Baralhos
         {
             List<Carta> resultado = [.. cartas];
 
-            for (int indiceAtual = resultado.Count - 1; indiceAtual > 0; indiceAtual--)
+            for (int indiceAtual = resultado.Count - 1;
+                 indiceAtual > 0;
+                 indiceAtual--)
             {
-                int indiceAleatorio = Random.Next(indiceAtual + 1);
-                (resultado[indiceAtual], resultado[indiceAleatorio]) = (resultado[indiceAleatorio], resultado[indiceAtual]);
+                int indiceAleatorio =
+                    Random.Next(indiceAtual + 1);
+
+                (resultado[indiceAtual],
+                 resultado[indiceAleatorio]) =
+                (
+                    resultado[indiceAleatorio],
+                    resultado[indiceAtual]
+                );
             }
 
             return resultado;

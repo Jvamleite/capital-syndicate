@@ -10,7 +10,7 @@ namespace CapitalSyndicate.Domain.Mercados
         public string Nome { get; set; } = string.Empty;
         public List<Patamar> Patamares { get; set; } = [];
 
-        public virtual void AvancarPresenca(Jogador jogador, Partida partida)
+        public virtual async Task AvancarPresenca(Jogador jogador, Partida partida)
         {
             Presenca presenca = jogador.PresencasDeMercado.First(p => p.Mercado == this);
             presenca.Avancar();
@@ -43,8 +43,8 @@ namespace CapitalSyndicate.Domain.Mercados
         public virtual void AoAvancar(Jogador jogador, Partida partida)
         { }
 
-        public virtual void AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
-        { }
+        public virtual Task AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
+        { throw new NotImplementedException(); }
 
         public virtual void AposPontuacaoDoTrimestre(Jogador jogador, Partida partida)
         { }

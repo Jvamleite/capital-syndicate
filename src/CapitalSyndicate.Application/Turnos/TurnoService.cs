@@ -36,15 +36,15 @@ namespace CapitalSyndicate.Application.Turnos
             return cartasCompradas;
         }
 
-        public IEnumerable<Carta> ExecutarProjeto(Projeto projeto, Partida partida)
+        public async Task<IEnumerable<Carta>> ExecutarProjeto(Projeto projeto, Partida partida)
         {
             Trimestre trimestre = partida.ObterTrimestreAtual();
             Turno turno = trimestre.TurnoAtual;
 
-            Mercado mercado = ObterMercadoDoProjeto(projeto, turno.Jogador, partida);
+            Mercado mercado = ObterMercadoDoProjeto(projeto, partida);
             bool podeAvancar = mercado.PodeAvancar(turno.Jogador, projeto);
 
-            List<Carta> cartasDescartadas = [.. ResolverExecucaoDeProjeto(projeto, turno.Jogador, partida, podeAvancar)];
+            List<Carta> cartasDescartadas = [.. await ResolverExecucaoDeProjeto(projeto, turno.Jogador, partida, podeAvancar)];
 
             turno.Encerrar();
             trimestre.AvancarTurno();
@@ -52,7 +52,7 @@ namespace CapitalSyndicate.Application.Turnos
             return cartasDescartadas;
         }
 
-        private static IEnumerable<Carta> ResolverExecucaoDeProjeto(Projeto projeto, Jogador jogador, Partida partida, bool podeAvancar)
+        private static async Task<IEnumerable<Carta>> ResolverExecucaoDeProjeto(Projeto projeto, Jogador jogador, Partida partida, bool podeAvancar)
         {
             jogador.ValidarCartas(projeto);
             jogador.AlocarProfissionais(projeto);
@@ -66,15 +66,19 @@ namespace CapitalSyndicate.Application.Turnos
 
                 if (!avancoTratadoPelaHabilidade)
                 {
-                    mercado.AvancarPresenca(jogador, partida);
+                    await mercado.AvancarPresenca(jogador, partida);
                 }
 
-                projeto.Gerente.Cargo.ObterHabilidade().AposAvanco(jogador, partida, projeto);
+                await projeto.Gerente.Cargo.ObterHabilidade().AposAvanco(jogador, partida, projeto);
             }
 
-            TentarGerarToken(projeto, jogador);
+            await TentarGerarToken(projeto, jogador, partida);
 
-            return jogador.FazerLayoff(projeto, partida);
+            IReadOnlyList<Carta> cartasDescartadas = await jogador.FazerLayoff(projeto, partida);
+
+            projeto.Gerente.Cargo.ObterHabilidade().AposLayoff(jogador, partida, projeto);
+
+            return cartasDescartadas;
         }
 
         private List<Carta> ComprarDoMonte(int quantidade, Jogador jogador, Partida partida)
@@ -105,17 +109,40 @@ namespace CapitalSyndicate.Application.Turnos
             return cartasCompradas;
         }
 
-        private static Mercado ObterMercadoDoProjeto(Projeto projeto, Jogador jogador, Partida partida) =>
-            projeto.Gerente.Cargo == Cargo.DiretorDeExpansao
-                ? partida.Entrada.EscolherMercadoExpansao(jogador, partida)
-                : partida.ObterMercado(projeto.SetorFinal);
+        private static Mercado ObterMercadoDoProjeto(Projeto projeto, Partida partida) => partida.ObterMercado(projeto.SetorFinal);
 
-        private static void TentarGerarToken(Projeto projeto, Jogador jogador)
+        private static async Task TentarGerarToken(
+            Projeto projeto,
+            Jogador jogador,
+            Partida partida)
         {
-            if (CargosQueGeramToken.Contains(projeto.Gerente.Cargo))
+            Cargo cargo = projeto.Gerente.Cargo;
+
+            if (!CargosQueGeramToken.Contains(cargo))
             {
-                jogador.Tokens.Add(Token.GerarToken(projeto.Gerente.Cargo));
+                return;
             }
+
+            Token token;
+
+            if (cargo == Cargo.GestorDePortifolio)
+            {
+                TipoAtivo tipo =
+                    await partida.Entrada
+                        .EscolherTipoAtivoCorporativo(
+                            jogador);
+
+                token = new TokenAtivo
+                {
+                    Tipo = tipo
+                };
+            }
+            else
+            {
+                token = Token.GerarToken(cargo);
+            }
+
+            jogador.Tokens.Add(token);
         }
 
         private static int CalcularTotalAComprar(int quantidade, Baralho baralho) =>

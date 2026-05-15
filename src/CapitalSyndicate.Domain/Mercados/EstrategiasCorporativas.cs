@@ -5,7 +5,7 @@ using CapitalSyndicate.Domain.Projetos;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
-    internal class EstrategiasCorporativas : Mercado
+    public class EstrategiasCorporativas : Mercado
     {
         public bool OperacoesAfterHours { get; }
 
@@ -40,7 +40,7 @@ namespace CapitalSyndicate.Domain.Mercados
             return patamares;
         }
 
-        public override void AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
+        public override async Task AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
         {
             if (!OperacoesAfterHours)
             {
@@ -54,17 +54,17 @@ namespace CapitalSyndicate.Domain.Mercados
                 return;
             }
 
-            Projeto? projeto = partida.Entrada.EscolherProjetoAfterHours(jogador, partida, Setor.EstrategiasCorporativa);
+            Projeto? projeto = await partida.Entrada.EscolherProjetoAfterHours(jogador, partida, Setor.EstrategiasCorporativas);
 
             if (projeto is null)
             {
                 return;
             }
 
-            if (projeto.Gerente.Setor != Setor.EstrategiasCorporativa)
+            if (projeto.Gerente.Setor != Setor.EstrategiasCorporativas)
             {
                 throw new InvalidOperationException(
-                    $"O gerente do projeto after-hours deve ser do setor {Setor.EstrategiasCorporativa}.");
+                    $"O gerente do projeto after-hours deve ser do setor {Setor.EstrategiasCorporativas}.");
             }
 
             jogador.ValidarCartas(projeto);
@@ -74,7 +74,7 @@ namespace CapitalSyndicate.Domain.Mercados
             if (podeAvancar)
             {
                 AvancarPresenca(jogador, partida);
-                projeto.Gerente.Cargo.ObterHabilidade().AposAvanco(jogador, partida, projeto);
+                await projeto.Gerente.Cargo.ObterHabilidade().AposAvanco(jogador, partida, projeto);
             }
         }
     }

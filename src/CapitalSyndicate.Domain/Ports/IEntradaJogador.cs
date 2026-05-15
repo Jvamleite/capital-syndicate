@@ -9,20 +9,22 @@ namespace CapitalSyndicate.Domain.Ports
 {
     public interface IEntradaJogador
     {
-        bool ConfirmarCashOut(Jogador jogador, int pontosOferecidos);
+        Task<bool> ConfirmarCashOut(Jogador jogador, int pontosOferecidos);
 
-        Presenca EscolherMarcadorLogistica(Jogador jogador, Presenca primeira, Presenca segunda);
+        Task<Presenca> EscolherMarcadorLogistica(Jogador jogador, Presenca primeira, Presenca segunda);
 
-        Projeto? EscolherSegundoProjeto(Jogador jogador, Partida partida);
+        Task<Projeto?> EscolherSegundoProjeto(Jogador jogador, Partida partida);
 
-        Projeto? EscolherProjetoAfterHours(Jogador jogador, Partida partida, Setor setorObrigatorio);
+        Task<Projeto?> EscolherProjetoAfterHours(Jogador jogador, Partida partida, Setor setorObrigatorio);
 
-        Presenca EscolherPresencaParaMemorando(Jogador jogador, List<Presenca> presencasDisponiveis);
+        Task<Presenca> EscolherPresencaParaMemorando(Jogador jogador, List<Presenca> presencasDisponiveis);
 
-        Mercado EscolherMercadoExpansao(Jogador jogador, Partida partida);
+        Task<Mercado> EscolherMercadoExpansao(Jogador jogador, List<Mercado> mercadosValidos);
 
-        int EscolherNumManterCartas(Jogador jogador, Partida partida, int escalaProjeto);
+        Task<int> EscolherNumManterCartas(Jogador jogador, Partida partida, int escalaProjeto);
 
-        Carta EscolherCartaParaMercadoDeTalentos(Jogador jogador);
+        Task<Carta> EscolherCartaParaMercadoDeTalentos(Jogador jogador);
+
+        Task<TipoAtivo> EscolherTipoAtivoCorporativo(Jogador jogador);
     }
 }

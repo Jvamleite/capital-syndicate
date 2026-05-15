@@ -4,7 +4,7 @@ using CapitalSyndicate.Domain.Partidas;
 
 namespace CapitalSyndicate.Domain.Mercados
 {
-    internal class Inovacao : Mercado
+    public class Inovacao : Mercado
     {
         private const int LimiteMaoMaximo = 10;
 

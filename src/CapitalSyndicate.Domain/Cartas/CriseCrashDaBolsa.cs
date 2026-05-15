@@ -3,11 +3,11 @@ using CapitalSyndicate.Domain.Partidas;
 
 namespace CapitalSyndicate.Domain.Cartas
 {
-    internal class CriseCrashDaBolsa : CartaCrise
+    public class CriseCrashDaBolsa : CartaCrise
     {
         public override string Descricao() => "Crise: Crash da Bolsa";
 
-        public override void Resolver(Jogador jogadorQueRevelou, Partida partida)
+        public override async Task Resolver(Jogador jogadorQueRevelou, Partida partida)
         {
             partida.ObterTrimestreAtual().Encerrar(partida);
         }

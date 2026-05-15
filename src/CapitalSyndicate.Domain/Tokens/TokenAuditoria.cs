@@ -1,6 +1,6 @@
 ﻿namespace CapitalSyndicate.Domain.Tokens
 {
-    internal class TokenAuditoria : Token
+    public class TokenAuditoria : Token
     {
         private static readonly int[] _valoresPossiveis = [-2, -1, 0, 1, 2, 3];
 

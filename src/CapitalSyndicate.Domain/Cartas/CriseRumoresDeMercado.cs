@@ -3,9 +3,9 @@ using CapitalSyndicate.Domain.Partidas;
 
 namespace CapitalSyndicate.Domain.Cartas
 {
-    internal class CriseRumoresDeMercado : CartaCrise
+    public class CriseRumoresDeMercado : CartaCrise
     {
-        public override void Resolver(Jogador jogadorQueRevelou, Partida partida)
+        public override async Task Resolver(Jogador jogadorQueRevelou, Partida partida)
         {
             partida.Baralho.DescartarCartasDoMercadoDeTalentos();
             List<Carta> cartasParaComprar = [];

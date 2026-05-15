@@ -6,9 +6,9 @@ namespace CapitalSyndicate.Domain.Cartas.Habilidades
 {
     internal class HabilidadeGestorDeRh : IHabilidadeLider
     {
-        void IHabilidadeLider.AposAvanco(Jogador ativo, Partida partida, Projeto projeto)
+        async Task IHabilidadeLider.AposAvanco(Jogador ativo, Partida partida, Projeto projeto)
         {
-            int cartasAManter = partida.Entrada.EscolherNumManterCartas(ativo, partida, projeto.Escala);
+            int cartasAManter = await partida.Entrada.EscolherNumManterCartas(ativo, partida, projeto.Escala);
 
             cartasAManter = Math.Min(cartasAManter, projeto.Escala);
 

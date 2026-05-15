@@ -6,7 +6,7 @@ namespace CapitalSyndicate.Domain.Cartas.Habilidades
 {
     internal class HabilidadeInvestidor : IHabilidadeLider
     {
-        void IHabilidadeLider.AposAvanco(Jogador ativo, Partida partida, Projeto projeto)
+        void IHabilidadeLider.AposLayoff(Jogador ativo, Partida partida, Projeto projeto)
         {
             int escalaProjeto = projeto.Escala;
             List<Carta> cartasCompradas = [];

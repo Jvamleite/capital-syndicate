@@ -1,0 +1,795 @@
+﻿/* Salve em: Components/Pages/Tabuleiro.razor.css */
+
+.tb {
+    --bg: #0e0e12;
+    --surface: #16161d;
+    --border: #2a2a35;
+    --gold: #c9a84c;
+    --gold-dim: #5a4a20;
+    --text: #e8e8ef;
+    --muted: #6b6b7e;
+    --green-fg: #74c69d;
+    --red-fg: #f07070;
+    --warn: #c9844c;
+    background: var(--bg);
+    color: var(--text);
+    font-family: monospace;
+    min-height: 100dvh;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ── Cores por setor ────────────────────────────────────────── */
+.tb-setor--inovacao {
+    color: #4ca8c9;
+}
+
+.tb-setor--tecnologia {
+    color: #a84cc9;
+}
+
+.tb-setor--logistica {
+    color: #4cc97a;
+}
+
+.tb-setor--infra {
+    color: #c9a84c;
+}
+
+.tb-setor--estrategia {
+    color: #c94c4c;
+}
+
+.tb-setor--financeiro {
+    color: #c9c94c;
+}
+
+.tb-market--inovacao {
+    border-top-color: #1a4a5e !important;
+}
+
+.tb-market--tecnologia {
+    border-top-color: #4a1a5e !important;
+}
+
+.tb-market--logistica {
+    border-top-color: #1a5e35 !important;
+}
+
+.tb-market--infra {
+    border-top-color: #5e4a1a !important;
+}
+
+.tb-market--estrategia {
+    border-top-color: #5e1a1a !important;
+}
+
+.tb-market--financeiro {
+    border-top-color: #5e5e1a !important;
+}
+
+/* ── Topbar ─────────────────────────────────────────────────── */
+.tb-topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold-dim);
+    padding: 8px 14px;
+}
+
+.tb-logo {
+    color: var(--gold);
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    margin-right: 4px;
+}
+
+.tb-pill {
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tb-pill--gold {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+}
+
+.tb-pill--warn {
+    border-color: var(--warn);
+    color: var(--warn);
+}
+
+.tb-crisis-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    display: inline-block;
+}
+
+.tb-crisis-dot--on {
+    background: var(--red-fg);
+}
+
+/* ── Meio (mercados + placar) ───────────────────────────────── */
+.tb-middle {
+    display: grid;
+    grid-template-columns: 1fr 130px;
+    gap: 8px;
+    flex: 1;
+}
+
+/* ── Grid de mercados ───────────────────────────────────────── */
+.tb-markets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    align-content: stretch;
+}
+
+.tb-market {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold-dim);
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.tb-market-name {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tb-adv {
+    font-size: 10px;
+    padding: 1px 5px;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    margin-left: auto;
+}
+
+/* Track de patamares */
+.tb-track {
+    display: flex;
+    gap: 3px;
+    align-items: stretch;
+    flex: 1;
+}
+
+.tb-slot {
+    flex: 1;
+    min-height: 54px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3px 2px;
+    box-sizing: border-box;
+}
+
+.tb-slot-req {
+    font-size: 10px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 2px;
+    opacity: 0.9;
+}
+
+.tb-slot-markers {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+.tb-slot-pts {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    width: 100%;
+    text-align: center;
+    padding-top: 2px;
+}
+
+.tb-marker {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ── Placar de jogadores ────────────────────────────────────── */
+.tb-players {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tb-player-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--border);
+    padding: 8px 10px;
+    box-sizing: border-box;
+    transition: border-left-color 0.15s;
+}
+
+.tb-player-card--active {
+    border-left-color: var(--player-color, var(--gold));
+}
+
+.tb-player-name {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 2px;
+}
+
+.tb-player-pv {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--gold);
+    line-height: 1;
+}
+
+.tb-player-pv-label {
+    font-size: 10px;
+    color: var(--muted);
+}
+
+.tb-token-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+}
+
+.tb-token {
+    font-size: 10px;
+    padding: 1px 5px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+}
+
+/* ── Baralho row ────────────────────────────────────────────── */
+.tb-baralho-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 80px;
+    gap: 8px;
+}
+
+.tb-deck {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold-dim);
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: border-top-color 0.15s;
+}
+
+    .tb-deck:hover:not(:disabled) {
+        border-top-color: var(--gold);
+    }
+
+    .tb-deck:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+.tb-deck--muted {
+    cursor: default;
+}
+
+    .tb-deck--muted:hover {
+        border-top-color: var(--gold-dim);
+    }
+
+.tb-deck-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.tb-deck-count {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--text);
+    line-height: 1;
+}
+
+.tb-talent {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold-dim);
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.tb-talent-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tb-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+}
+
+.tb-talent-cards {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tb-card-slot {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 7px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    min-width: 80px;
+    text-align: left;
+}
+
+    .tb-card-slot:hover:not(:disabled) {
+        border-color: var(--gold-dim);
+    }
+
+    .tb-card-slot:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+.tb-card-slot--sel {
+    border-color: var(--gold);
+    background: #1c1a10;
+}
+
+.tb-card-setor {
+    font-size: 7px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.tb-card-cargo {
+    font-size: 10px;
+    color: var(--text);
+}
+
+/* ── Mão do jogador ─────────────────────────────────────────── */
+.tb-hand {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold);
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.tb-hand-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.tb-hand-label {
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.tb-hand-cards {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.tb-hand-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    min-width: 85px;
+    text-align: left;
+}
+
+    .tb-hand-card:hover {
+        border-color: var(--gold-dim);
+    }
+
+.tb-hand-card--sel {
+    border-color: var(--gold);
+    background: #1c1a10;
+}
+
+.tb-hc-setor {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.tb-hc-cargo {
+    font-size: 13px;
+    color: var(--text);
+}
+
+.tb-hc-tag {
+    font-size: 7px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+/* ── Seleção de gerente ─────────────────────────────────────── */
+.tb-gerente-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.tb-hint {
+    font-size: 9px;
+    color: var(--muted);
+}
+
+.tb-gerente-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 10px;
+    font-family: monospace;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+    .tb-gerente-btn:hover {
+        border-color: var(--gold-dim);
+        color: var(--text);
+    }
+
+.tb-gerente-btn--on {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: #1c1a10;
+}
+
+/* ── Botões de ação ─────────────────────────────────────────── */
+.tb-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.tb-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 7px 16px;
+    font-family: monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+    .tb-btn:hover:not(:disabled) {
+        border-color: var(--gold-dim);
+        color: var(--text);
+    }
+
+    .tb-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+.tb-btn--primary {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #0e0e12;
+    font-weight: bold;
+}
+
+    .tb-btn--primary:hover:not(:disabled) {
+        opacity: 0.85;
+    }
+
+    .tb-btn--primary:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+/* ── Utilitários ────────────────────────────────────────────── */
+.tb-empty {
+    font-size: 9px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+/* ── Projetos ──────────────────────────────────────────────────*/
+
+.tb-error {
+    font-size: 9px;
+    color: var(--red-fg);
+    font-family: monospace;
+}
+
+.tb-projects-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.tb-project-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 8px;
+}
+
+.tb-project-owner {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    margin-bottom: 6px;
+}
+
+.tb-project-list {
+    display: flex;
+    flex-direction: wrap;
+    gap: 6px;
+}
+
+.tb-project-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    padding: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 180px;
+}
+
+.tb-project-card--inovacao {
+    border-left-color: #4ca8c9;
+}
+
+.tb-project-card--tecnologia {
+    border-left-color: #a84cc9;
+}
+
+.tb-project-card--logistica {
+    border-left-color: #4cc97a;
+}
+
+.tb-project-card--infra {
+    border-left-color: #c9a84c;
+}
+
+.tb-project-card--estrategia {
+    border-left-color: #c94c4c;
+}
+
+.tb-project-card--financeiro {
+    border-left-color: #c9c94c;
+}
+
+.tb-project-header {
+    font-size: 8px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.tb-project-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.tb-project-unit {
+    font-size: 7px;
+    padding: 2px 5px;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.tb-project-unit--gerente {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: #1c1a10;
+}
+
+.tb-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.tb-crisis-modal {
+    width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--warn);
+    border-top: 3px solid var(--warn);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+.tb-crisis-title {
+    font-size: 20px;
+    color: var(--warn);
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+.tb-crisis-flavor {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    font-style: italic;
+}
+
+.tb-crisis-effect {
+    font-size: 12px;
+    color: var(--gold);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+}
+
+.tb-market-choice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ── Trilha Global ──────────────────────────────────────────────────*/
+
+tb-global {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid #4c7ec9;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tb-global-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tb-global-title {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #7fb0ff;
+}
+
+.tb-global-subtitle {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+}
+
+.tb-global-track {
+    display: flex;
+    gap: 3px;
+}
+
+.tb-global-slot {
+    flex: 1;
+    min-height: 58px;
+    background: var(--bg);
+    border: 1px solid #2c4f7a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 2px;
+    position: relative;
+}
+
+.tb-global-slot--memo {
+    border-color: var(--gold);
+    background: #1c1a10;
+}
+
+.tb-global-index {
+    font-size: 8px;
+    color: var(--muted);
+}
+
+.tb-global-memo {
+    font-size: 7px;
+    color: var(--gold);
+    letter-spacing: 1px;
+}
+
+.tb-global-markers {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.tb-token--patente {
+    border-color: #4ca8c9;
+    color: #4ca8c9;
+}
+
+.tb-token--startup {
+    border-color: #a84cc9;
+    color: #a84cc9;
+}
+
+.tb-token--imovel {
+    border-color: #c9a84c;
+    color: #c9a84c;
+}
+
+.tb-warning {
+    border: 1px solid var(--gold);
+    background: #2a2412;
+    color: var(--gold);
+    padding: 8px 10px;
+    font-size: 11px;
+    margin-bottom: 8px;
+}

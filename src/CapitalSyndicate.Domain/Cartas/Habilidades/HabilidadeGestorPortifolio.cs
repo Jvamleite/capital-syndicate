@@ -9,7 +9,7 @@ namespace CapitalSyndicate.Domain.Cartas.Habilidades
         void IHabilidadeLider.AoFimDoJogo(Jogador ativo, Partida partida)
         {
             List<TokenAtivo> tokens = [.. ativo.Tokens.OfType<TokenAtivo>()];
-            ativo.PontosVitoria += TokenAtivo.PontuarConjunto(tokens);
+            ativo.PontosVitoria += TokenAtivo.PontuarPortfolio(tokens);
         }
     }
 }
