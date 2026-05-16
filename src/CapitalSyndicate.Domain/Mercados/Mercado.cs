@@ -40,11 +40,11 @@ namespace CapitalSyndicate.Domain.Mercados
             return Patamares[presenca.IndicePatamar].Pontos;
         }
 
-        public virtual void AoAvancar(Jogador jogador, Partida partida)
-        { }
+        public virtual Task AoAvancar(Jogador jogador, Partida partida)
+        { return Task.CompletedTask; }
 
         public virtual Task AntesDaPontuacaoDoTrimestre(Jogador jogador, Partida partida)
-        { throw new NotImplementedException(); }
+        { return Task.CompletedTask; }
 
         public virtual void AposPontuacaoDoTrimestre(Jogador jogador, Partida partida)
         { }

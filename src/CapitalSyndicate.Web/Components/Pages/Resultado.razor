@@ -1,0 +1,149 @@
+﻿@page "/resultado"
+@layout GameLayout
+@using CapitalSyndicate.Domain.Enums
+@using CapitalSyndicate.Domain.Jogadores
+@using CapitalSyndicate.Domain.Tokens
+@using CapitalSyndicate.Web.Components.Layout
+@using CapitalSyndicate.Web.Services
+@inject PartidaEstado EstadoPartida
+@inject NavigationManager Nav
+
+<PageTitle>Resultado — Capital Syndicate</PageTitle>
+
+@if (EstadoPartida.Partida is null)
+{
+    <div class="rs-empty">
+        Nenhuma partida encontrada.
+    </div>
+    return;
+}
+
+@{
+    var resultado = EstadoPartida.ResultadoFinal;
+
+    if (resultado is null)
+    {
+        Nav.NavigateTo("/tabuleiro");
+        return;
+    }
+
+    var ranking = resultado.Vencedores;
+
+    var vencedor = ranking.First();
+}
+
+<div class="rs">
+
+    <div class="rs-header">
+        <div>
+            <div class="rs-title">CAPITAL SYNDICATE</div>
+            <div class="rs-subtitle">RESULTADO FINAL</div>
+        </div>
+
+        <button class="rs-btn" @onclick="IrParaSetup">
+            Nova Partida
+        </button>
+    </div>
+
+    <div class="rs-winner-card">
+        <div class="rs-winner-label">VENCEDOR</div>
+
+        <div class="rs-winner-name">
+            @vencedor.Nome.ToUpper()
+        </div>
+
+        <div class="rs-winner-score">
+            @vencedor.PontosVitoria PV
+        </div>
+    </div>
+
+    <div class="rs-ranking">
+        @for (int i = 0; i < ranking.Count; i++)
+        {
+            var jogador = ranking[i];
+            var ativos = jogador.Tokens.OfType<TokenAtivo>().ToList();
+
+            var patentes = ativos.Count(a => a.Tipo == TipoAtivo.Patente);
+            var startups = ativos.Count(a => a.Tipo == TipoAtivo.Startup);
+            var imoveis = ativos.Count(a => a.Tipo == TipoAtivo.Imovel);
+
+            <div class="rs-player-card">
+
+                <div class="rs-posicao">
+                    #@(i + 1)
+                </div>
+
+                <div class="rs-main">
+                    <div class="rs-player-name">
+                        @jogador.Nome.ToUpper()
+                    </div>
+
+                    <div class="rs-stats">
+
+                        <div class="rs-stat-block">
+                            <div class="rs-stat-value">
+                                @jogador.PontosVitoria
+                            </div>
+                            <div class="rs-stat-label">
+                                Pontos de Vitória
+                            </div>
+                        </div>
+
+                        <div class="rs-stat-block">
+                            <div class="rs-stat-value">
+                                @jogador.ProjetosNaMesa.Count
+                            </div>
+                            <div class="rs-stat-label">
+                                Projetos Executados
+                            </div>
+                        </div>
+
+                        <div class="rs-stat-block">
+                            <div class="rs-token-list">
+
+                                @if (patentes > 0)
+                                {
+                                    <span class="rs-token rs-token--patente">
+                                        PAT ×@patentes
+                                    </span>
+                                }
+
+                                @if (startups > 0)
+                                {
+                                    <span class="rs-token rs-token--startup">
+                                        STA ×@startups
+                                    </span>
+                                }
+
+                                @if (imoveis > 0)
+                                {
+                                    <span class="rs-token rs-token--imovel">
+                                        IMO ×@imoveis
+                                    </span>
+                                }
+
+                                @if (!ativos.Any())
+                                {
+                                    <span class="rs-empty-token">
+                                        Nenhum ativo corporativo
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="rs-stat-label">
+                                Ativos Corporativos
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private void IrParaSetup()
+    {
+        Nav.NavigateTo("/setup", true);
+    }
+}

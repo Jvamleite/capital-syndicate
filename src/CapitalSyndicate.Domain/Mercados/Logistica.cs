@@ -83,7 +83,7 @@ namespace CapitalSyndicate.Domain.Mercados
             }
 
             escolhido.Avancar();
-            AoAvancar(jogador, partida);
+            await AoAvancar(jogador, partida);
         }
 
         private bool PodeAvancarPresenca(Presenca presenca, int escalaProjeto)
