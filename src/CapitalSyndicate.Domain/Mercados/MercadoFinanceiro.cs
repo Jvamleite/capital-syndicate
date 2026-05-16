@@ -38,7 +38,7 @@ namespace CapitalSyndicate.Domain.Mercados
             return patamares;
         }
 
-        public override async void AoAvancar(Jogador jogador, Partida partida)
+        public override async Task AoAvancar(Jogador jogador, Partida partida)
         {
             if (!CashOutDisponivel)
             {

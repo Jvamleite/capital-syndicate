@@ -42,11 +42,11 @@ namespace CapitalSyndicate.Domain.Mercados
             return patamares;
         }
 
-        public override void AoAvancar(Jogador jogador, Partida partida)
+        public override Task AoAvancar(Jogador jogador, Partida partida)
         {
             if (!InjecaoDeRecursos)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             Presenca presenca = jogador.PresencasDeMercado.First(p => p.Mercado == this);
@@ -59,6 +59,8 @@ namespace CapitalSyndicate.Domain.Mercados
                 Carta cartas = partida.Baralho.ComprarCartaDoMonte();
                 jogador.CartasNaMao.Add(cartas);
             }
+
+            return Task.CompletedTask;
         }
     }
 }

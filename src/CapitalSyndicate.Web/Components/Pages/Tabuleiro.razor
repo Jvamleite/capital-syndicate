@@ -684,7 +684,11 @@
                 partida.JogadorQueRevelouUltimaCrise ?? partida.Jogadores[0]);
 
             if (resultado.JogoEncerrado)
+            {
+                EstadoPartida.ResultadoFinal = resultado;
+
                 Nav.NavigateTo("/resultado");
+            }
 
             LimparSelecao();
         }
