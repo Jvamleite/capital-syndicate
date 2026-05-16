@@ -6,6 +6,6 @@ namespace CapitalSyndicate.Application.Crises.Interfaces
 {
     public interface ICriseService
     {
-        bool Resolver(CartaCrise crise, Jogador jogador, Partida partida);
+        Task<bool> Resolver(CartaCrise crise, Jogador jogador, Partida partida);
     }
 }
