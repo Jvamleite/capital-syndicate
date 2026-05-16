@@ -26,5 +26,7 @@ namespace CapitalSyndicate.Domain.Ports
         Task<Carta> EscolherCartaParaMercadoDeTalentos(Jogador jogador);
 
         Task<TipoAtivo> EscolherTipoAtivoCorporativo(Jogador jogador);
+
+        Task NotificarCrise(CartaCrise crise);
     }
 }

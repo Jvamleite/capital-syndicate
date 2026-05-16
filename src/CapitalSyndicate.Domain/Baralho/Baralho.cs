@@ -4,21 +4,34 @@ namespace CapitalSyndicate.Domain.Baralhos
 {
     public class Baralho
     {
-        private const int NumeroDeCrises = 3;
         private static readonly Random Random = new();
+        private readonly List<Carta> _cartasNormais;
 
-        public Stack<Carta> Monte { get; }
+        public Stack<Carta> Monte { get; private set; }
         public List<Carta> MercadoDeTalentos { get; }
         public IReadOnlyList<Carta> Descarte { get; private set; }
 
         public Baralho(List<Carta> cartasNormais, IEnumerable<Carta> cartasCrise, int numJogadores)
         {
+            _cartasNormais = cartasNormais;
             Monte = new Stack<Carta>(CriarMonte(cartasNormais, [.. cartasCrise]));
             MercadoDeTalentos = CriarMercadoDeTalentos(numJogadores);
             Descarte = [];
         }
 
         public Carta ComprarCartaDoMonte() => Monte.Pop();
+
+        public void Reiniciar(IEnumerable<CartaCrise> cartasCrise, int numJogadores)
+        {
+            Descarte = [];
+            MercadoDeTalentos.Clear();
+            Monte = new Stack<Carta>(CriarMonte(_cartasNormais, [.. cartasCrise]));
+
+            for (int i = 0; i < numJogadores + 2; i++)
+            {
+                MercadoDeTalentos.Add(Monte.Pop());
+            }
+        }
 
         public Carta ComprarCartaDoMercadoDeTalentos(Guid idCarta)
         {
@@ -50,34 +63,19 @@ namespace CapitalSyndicate.Domain.Baralhos
             return mercadoDeTalentos;
         }
 
-        private static List<Carta> CriarMonte(
-            List<Carta> normais,
-            List<Carta> crises)
+        private static List<Carta> CriarMonte(List<Carta> normais, List<Carta> crises)
         {
             List<Carta> embaralhadas = Embaralhar(normais);
-
             int metade = embaralhadas.Count / 2;
 
-            List<Carta> parteSegura =
-            [
-                .. embaralhadas.Take(metade)
-            ];
+            List<Carta> parteSegura = [.. embaralhadas.Take(metade)];
+            List<Carta> parteComCrises = [.. embaralhadas.Skip(metade)];
 
-            List<Carta> parteComCrises =
-            [
-                .. embaralhadas.Skip(metade)
-            ];
+            List<Carta> crisesOrdenadas = [.. crises.AsEnumerable().Reverse()];
 
-            List<Carta> secaoComCrises =
-                DistribuirCrisesNasPilhas(
-                    parteComCrises,
-                    crises);
+            List<Carta> secaoComCrises = DistribuirCrisesNasPilhas(parteComCrises, crisesOrdenadas);
 
-            return
-            [
-                .. secaoComCrises,
-                .. parteSegura
-            ];
+            return [.. secaoComCrises, .. parteSegura];
         }
 
         private static List<Carta> DistribuirCrisesNasPilhas(

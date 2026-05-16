@@ -10,41 +10,25 @@ namespace CapitalSyndicate.Web.Services;
 
 public class EntradaJogadorBlazor : IEntradaJogador
 {
-    public Func<Jogador, int, Task<bool>>?
-        OnConfirmarCashOut
-    { get; set; }
+    public Func<Jogador, int, Task<bool>>? OnConfirmarCashOut { get; set; }
 
-    public Func<Jogador, Presenca, Presenca, Task<Presenca>>?
-        OnEscolherMarcadorLogistica
-    { get; set; }
+    public Func<Jogador, Presenca, Presenca, Task<Presenca>>? OnEscolherMarcadorLogistica { get; set; }
 
-    public Func<Jogador, Partida, Task<Projeto?>>?
-        OnEscolherSegundoProjeto
-    { get; set; }
+    public Func<Jogador, Partida, Task<Projeto?>>? OnEscolherSegundoProjeto { get; set; }
 
-    public Func<Jogador, Partida, Setor, Task<Projeto?>>?
-        OnEscolherProjetoAfterHours
-    { get; set; }
+    public Func<Jogador, Partida, Setor, Task<Projeto?>>? OnEscolherProjetoAfterHours { get; set; }
 
-    public Func<Jogador, List<Presenca>, Task<Presenca>>?
-        OnEscolherPresencaParaMemorando
-    { get; set; }
+    public Func<Jogador, List<Presenca>, Task<Presenca>>? OnEscolherPresencaParaMemorando { get; set; }
 
-    public Func<Jogador, List<Mercado>, Task<Mercado>>?
-    OnEscolherMercadoExpansao
-    { get; set; }
+    public Func<Jogador, List<Mercado>, Task<Mercado>>? OnEscolherMercadoExpansao { get; set; }
 
-    public Func<Jogador, Partida, int, Task<int>>?
-        OnEscolherNumManterCartas
-    { get; set; }
+    public Func<Jogador, Partida, int, Task<int>>? OnEscolherNumManterCartas { get; set; }
 
-    public Func<Jogador, Task<Carta>>?
-        OnEscolherCartaParaMercadoDeTalentos
-    { get; set; }
+    public Func<Jogador, Task<Carta>>? OnEscolherCartaParaMercadoDeTalentos { get; set; }
 
-    public Func<Jogador, Task<TipoAtivo>>?
-        OnEscolherTipoAtivoCorporativo
-    { get; set; }
+    public Func<Jogador, Task<TipoAtivo>>? OnEscolherTipoAtivoCorporativo { get; set; }
+
+    public Func<CartaCrise, Task>? OnCriseRevelada { get; set; }
 
     public async Task<bool> ConfirmarCashOut(
         Jogador jogador,
@@ -156,5 +140,13 @@ public class EntradaJogadorBlazor : IEntradaJogador
 
         return await OnEscolherTipoAtivoCorporativo
             .Invoke(jogador);
+    }
+
+    public async Task NotificarCrise(CartaCrise crise)
+    {
+        if (OnCriseRevelada is not null)
+        {
+            await OnCriseRevelada(crise);
+        }
     }
 }

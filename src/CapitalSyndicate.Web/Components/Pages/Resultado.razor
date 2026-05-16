@@ -1,4 +1,5 @@
 ﻿@page "/resultado"
+@rendermode InteractiveServer
 @layout GameLayout
 @using CapitalSyndicate.Domain.Enums
 @using CapitalSyndicate.Domain.Jogadores
@@ -10,25 +11,18 @@
 
 <PageTitle>Resultado — Capital Syndicate</PageTitle>
 
-@if (EstadoPartida.Partida is null)
+@if (EstadoPartida.ResultadoFinal is null)
 {
     <div class="rs-empty">
         Nenhuma partida encontrada.
+        <a href="/setup">Iniciar nova partida →</a>
     </div>
     return;
 }
 
 @{
     var resultado = EstadoPartida.ResultadoFinal;
-
-    if (resultado is null)
-    {
-        Nav.NavigateTo("/tabuleiro");
-        return;
-    }
-
     var ranking = resultado.Vencedores;
-
     var vencedor = ranking.First();
 }
 

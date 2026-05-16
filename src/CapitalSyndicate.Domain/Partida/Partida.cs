@@ -10,6 +10,7 @@ namespace CapitalSyndicate.Domain.Partidas
     public class Partida
     {
         private static readonly Random Random = new();
+        private readonly List<CartaCrise> _cartasCrise;
 
         public List<Jogador> Jogadores { get; } = [];
         public Baralho Baralho { get; }
@@ -35,6 +36,7 @@ namespace CapitalSyndicate.Domain.Partidas
             IEntradaJogador entrada,
             bool comTrilhaGlobal = false)
         {
+            _cartasCrise = cartasCrise;
             Jogadores = jogadores;
             Mercados = mercados;
             Entrada = entrada;
@@ -57,6 +59,8 @@ namespace CapitalSyndicate.Domain.Partidas
             IniciarNovoTrimestre(primeiroTrimestre: true);
         }
 
+
+
         private void InicializarPresencasDeMercado()
         {
             foreach (Jogador jogador in Jogadores)
@@ -70,6 +74,12 @@ namespace CapitalSyndicate.Domain.Partidas
 
         public void IniciarNovoTrimestre(bool primeiroTrimestre = false)
         {
+            if (!primeiroTrimestre)
+            {
+                ResetarParaNovoTrimestre();
+            }
+
+
             List<Jogador> ordemDeTurno = DefinirOrdemDeTurno(primeiroTrimestre);
             int numero = Trimestres.Count + 1;
 
@@ -80,6 +90,21 @@ namespace CapitalSyndicate.Domain.Partidas
                 Carta carta = Baralho.ComprarCartaDoMonte();
                 jogador.ComprarCartas([carta]);
             }
+        }
+
+        private void ResetarParaNovoTrimestre()
+        {
+            foreach (Jogador jogador in Jogadores)
+            {
+                jogador.ProjetosNaMesa.Clear();
+
+                foreach (Presenca presenca in jogador.PresencasDeMercado)
+                {
+                    presenca.Resetar();
+                }
+            }
+
+            Baralho.Reiniciar(_cartasCrise, Jogadores.Count);
         }
 
         private List<Jogador> DefinirOrdemDeTurno(bool primeiroTrimestre)

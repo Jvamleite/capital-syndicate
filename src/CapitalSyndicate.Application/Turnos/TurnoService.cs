@@ -22,12 +22,12 @@ namespace CapitalSyndicate.Application.Turnos
             _criseService = criseService;
         }
 
-        public IEnumerable<Carta> ComprarCartas(int quantidade, Partida partida)
+        public async Task<IEnumerable<Carta>> ComprarCartas(int quantidade, Partida partida)
         {
             Trimestre trimestre = partida.ObterTrimestreAtual();
             Turno turno = trimestre.TurnoAtual;
 
-            List<Carta> cartasCompradas = ComprarDoMonte(quantidade, turno.Jogador, partida);
+            List<Carta> cartasCompradas = await ComprarDoMonte(quantidade, turno.Jogador, partida);
 
             turno.Jogador.ComprarCartas(cartasCompradas);
             turno.Encerrar();
@@ -81,7 +81,7 @@ namespace CapitalSyndicate.Application.Turnos
             return cartasDescartadas;
         }
 
-        private List<Carta> ComprarDoMonte(int quantidade, Jogador jogador, Partida partida)
+        private async Task<List<Carta>> ComprarDoMonte(int quantidade, Jogador jogador, Partida partida)
         {
             Baralho baralho = partida.Baralho;
             int totalAComprar = CalcularTotalAComprar(quantidade, baralho);
@@ -97,7 +97,10 @@ namespace CapitalSyndicate.Application.Turnos
                     continue;
                 }
 
-                bool trimestreEncerrado = _criseService.Resolver(crise, jogador, partida);
+                bool trimestreEncerrado = await _criseService.Resolver(crise, jogador, partida);
+
+                await partida.Entrada.NotificarCrise(crise);
+
                 if (trimestreEncerrado)
                 {
                     return cartasCompradas;
