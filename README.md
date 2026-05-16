@@ -23,7 +23,7 @@ Capital Syndicate é uma adaptação digital do sistema **Archeos Society** para
 
 ## Sobre o Projeto
 
-O jogo foi desenvolvido como projeto acadêmico individual com metodologia **Scrum**, entregue em 6 sprints semanais. O objetivo era implementar todas as regras de um jogo de tabuleiro complexo em um ambiente digital funcional, do zero ao MVP jogável.
+O jogo foi desenvolvido como projeto acadêmico individual com metodologia Scrum, entregue em 6 sprints semanais. O objetivo era implementar todas as regras de um jogo de tabuleiro complexo em um ambiente digital funcional, do zero ao MVP jogável. O foco era simular o ambiente de uma software house — com gitflow, pull requests, criação de issues e todo o fluxo de desenvolvimento profissional.
 
 **Características principais:**
 
